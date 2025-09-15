@@ -149,6 +149,9 @@ class StarforgedApp {
         if (typeof vowsSubflow !== 'undefined') {
             vowsSubflow.init();
         }
+        if (typeof expeditionsSubflow !== 'undefined') {
+            expeditionsSubflow.init();
+        }
     }
 
     // Session 0 Setup

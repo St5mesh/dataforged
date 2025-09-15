@@ -10,8 +10,8 @@ class GameData {
         try {
             // Load the main data file and schema
             const [dataResponse, schemaResponse] = await Promise.all([
-                fetch('../dist/starforged/dataforged.json'),
-                fetch('../dist/starforged/schema.json')
+                fetch('/dist/starforged/dataforged.json'),
+                fetch('/dist/starforged/schema.json')
             ]);
 
             if (!dataResponse.ok || !schemaResponse.ok) {

@@ -39,6 +39,7 @@ class StarforgedApp {
         document.getElementById('nav-session0').addEventListener('click', () => this.switchScreen('session0'));
         document.getElementById('nav-play').addEventListener('click', () => this.switchScreen('play'));
         document.getElementById('nav-character').addEventListener('click', () => this.switchScreen('character'));
+        document.getElementById('nav-log').addEventListener('click', () => this.switchScreen('log'));
 
         // Session 0 events
         document.getElementById('randomize-truths').addEventListener('click', () => this.randomizeTruths());
@@ -59,6 +60,11 @@ class StarforgedApp {
         document.getElementById('execute-move').addEventListener('click', () => this.executeMoveFromUI());
         document.getElementById('ask-oracle').addEventListener('click', () => this.showOracleDialog());
         document.getElementById('pay-price').addEventListener('click', () => this.payThePrice());
+        
+        // Scene management events
+        document.getElementById('update-scene').addEventListener('click', () => this.updateCurrentScene());
+        document.getElementById('frame-new-scene').addEventListener('click', () => this.showNewSceneDialog());
+        document.getElementById('view-full-log').addEventListener('click', () => this.switchScreen('log'));
 
         // Character screen events
         document.getElementById('add-vow').addEventListener('click', () => this.showAddVowDialog());
@@ -71,6 +77,21 @@ class StarforgedApp {
         document.getElementById('cancel-track').addEventListener('click', () => this.hideAddProgressTrackDialog());
         document.getElementById('progress-track-form').addEventListener('submit', (e) => this.handleProgressTrackSubmit(e));
         document.getElementById('close-progress-roll').addEventListener('click', () => this.hideProgressRollDialog());
+        
+        // Scene log events
+        document.getElementById('log-search').addEventListener('input', (e) => this.searchLogEntries(e.target.value));
+        document.getElementById('log-filter-type').addEventListener('change', (e) => this.filterLogEntries(e.target.value));
+        document.getElementById('add-narrative-entry').addEventListener('click', () => this.showNarrativeDialog());
+        document.getElementById('export-log').addEventListener('click', () => this.exportSceneLog());
+        document.getElementById('clear-log').addEventListener('click', () => this.clearSceneLog());
+        
+        // Dialog events
+        document.getElementById('oracle-form').addEventListener('submit', (e) => this.handleOracleSubmit(e));
+        document.getElementById('cancel-oracle').addEventListener('click', () => this.hideOracleDialog());
+        document.getElementById('narrative-form').addEventListener('submit', (e) => this.handleNarrativeSubmit(e));
+        document.getElementById('cancel-narrative').addEventListener('click', () => this.hideNarrativeDialog());
+        document.getElementById('new-scene-form').addEventListener('submit', (e) => this.handleNewSceneSubmit(e));
+        document.getElementById('cancel-new-scene').addEventListener('click', () => this.hideNewSceneDialog());
     }
 
     initializeUI() {
@@ -99,19 +120,24 @@ class StarforgedApp {
         } else if (screenName === 'character') {
             this.updateCharacterDisplay();
             this.renderProgressTracks();
+        } else if (screenName === 'log') {
+            this.initializeLogScreen();
         }
     }
 
     updateNavigation() {
         const playBtn = document.getElementById('nav-play');
         const characterBtn = document.getElementById('nav-character');
+        const logBtn = document.getElementById('nav-log');
         
         if (character.sessionComplete) {
             playBtn.disabled = false;
             characterBtn.disabled = false;
+            logBtn.disabled = false;
         } else {
             playBtn.disabled = true;
             characterBtn.disabled = true;
+            logBtn.disabled = true;
         }
     }
 
@@ -370,6 +396,8 @@ class StarforgedApp {
     initializePlayScreen() {
         this.loadMoveCategories();
         this.updatePlayInterface();
+        this.updateCurrentSceneDisplay();
+        this.updateRecentLogEntries();
     }
 
     loadMoveCategories() {
@@ -489,8 +517,12 @@ class StarforgedApp {
         // Execute the move
         const result = movesSystem.executeMove(moveId, options);
         if (result) {
+            // Log the move execution
+            sceneLog.logMove(move, options, result);
+            
             this.displayMoveResult(result);
             this.updateCharacterDisplay();
+            this.updateRecentLogEntries();
         }
     }
 
@@ -521,7 +553,15 @@ class StarforgedApp {
     payThePrice() {
         const result = movesSystem.payThePrice();
         if (result) {
+            // Log the Pay the Price oracle roll
+            sceneLog.logOracle(
+                { Name: 'Pay the Price', $id: 'pay_the_price' }, 
+                result, 
+                'What happens when you pay the price?'
+            );
+            
             alert(`Pay the Price: ${result.result} (rolled ${result.roll})`);
+            this.updateRecentLogEntries();
         }
     }
 
@@ -837,6 +877,349 @@ class StarforgedApp {
 
     updatePlayInterface() {
         // Update any play interface elements that depend on character state
+        this.updateCurrentSceneDisplay();
+        this.updateRecentLogEntries();
+    }
+
+    // Scene Log Methods
+    updateCurrentSceneDisplay() {
+        const currentScene = sceneLog.getCurrentScene();
+        const titleElement = document.getElementById('current-scene-title');
+        const timeElement = document.getElementById('current-scene-time');
+        const descriptionElement = document.getElementById('scene-description');
+        
+        if (titleElement && currentScene) {
+            titleElement.textContent = currentScene.description || 'Current Scene';
+        }
+        
+        if (timeElement && currentScene) {
+            timeElement.textContent = sceneLog.getRelativeTime(currentScene.timestamp);
+        }
+        
+        if (descriptionElement && currentScene) {
+            descriptionElement.value = currentScene.description || '';
+        }
+    }
+
+    updateRecentLogEntries() {
+        const container = document.getElementById('recent-log-entries');
+        if (!container) return;
+
+        const recentEntries = sceneLog.getRecentEntries(5);
+        if (recentEntries.length === 0) {
+            container.innerHTML = '<p class="text-secondary">No recent activity</p>';
+            return;
+        }
+
+        container.innerHTML = recentEntries.map(entry => this.renderLogEntry(entry, true)).join('');
+    }
+
+    renderLogEntry(entry, compact = false) {
+        const typeClass = `entry-type-${entry.type}`;
+        const timeText = sceneLog.getRelativeTime(entry.timestamp);
+        
+        if (compact) {
+            return `
+                <div class="log-entry compact ${typeClass}">
+                    <div class="entry-content">
+                        <div class="entry-description">${entry.description}</div>
+                        <div class="entry-time">${timeText}</div>
+                    </div>
+                </div>
+            `;
+        }
+
+        return `
+            <div class="log-entry ${typeClass}">
+                <div class="entry-header">
+                    <span class="entry-type">${this.capitalizeFirst(entry.type.replace('-', ' '))}</span>
+                    <span class="entry-time">${sceneLog.formatTimestamp(entry.timestamp)}</span>
+                </div>
+                <div class="entry-content">
+                    <div class="entry-description">${entry.description}</div>
+                    ${entry.result?.roll ? this.renderLogRoll(entry.result.roll) : ''}
+                    ${entry.question ? `<div class="entry-question">Question: ${entry.question}</div>` : ''}
+                    ${entry.text ? `<div class="entry-text">${entry.text}</div>` : ''}
+                </div>
+                <div class="entry-scene">Scene: ${entry.sceneDescription}</div>
+            </div>
+        `;
+    }
+
+    renderLogRoll(roll) {
+        if (roll.actionDie !== undefined && roll.challengeDice) {
+            return `
+                <div class="log-roll">
+                    <span class="action-die">Action: ${roll.actionDie}</span>
+                    <span class="challenge-dice">Challenge: ${roll.challengeDice[0]}, ${roll.challengeDice[1]}</span>
+                    <span class="outcome ${roll.outcome}">${this.capitalizeFirst(roll.outcome.replace('-', ' '))}</span>
+                </div>
+            `;
+        } else if (roll.result) {
+            return `
+                <div class="log-roll">
+                    <span class="oracle-roll">Roll: ${roll.roll}</span>
+                    <span class="oracle-result">${roll.result}</span>
+                </div>
+            `;
+        }
+        return '';
+    }
+
+    updateCurrentScene() {
+        const descriptionElement = document.getElementById('scene-description');
+        const description = descriptionElement.value.trim();
+        
+        if (description) {
+            sceneLog.updateSceneDescription(description);
+            sceneLog.logNarrative(`Scene updated: ${description}`, 'scene-update');
+            this.updateCurrentSceneDisplay();
+            this.updateRecentLogEntries();
+        }
+    }
+
+    showNewSceneDialog() {
+        const dialog = document.getElementById('new-scene-dialog');
+        const form = document.getElementById('new-scene-form');
+        form.reset();
+        dialog.style.display = 'flex';
+    }
+
+    hideNewSceneDialog() {
+        const dialog = document.getElementById('new-scene-dialog');
+        dialog.style.display = 'none';
+    }
+
+    handleNewSceneSubmit(e) {
+        e.preventDefault();
+        const description = document.getElementById('new-scene-description').value.trim();
+        
+        if (description) {
+            const newScene = sceneLog.createScene(description);
+            sceneLog.logNarrative(`New scene: ${description}`, 'scene-start');
+            
+            this.hideNewSceneDialog();
+            this.updateCurrentSceneDisplay();
+            this.updateRecentLogEntries();
+            
+            // Clear the scene description field and set it to the new scene
+            document.getElementById('scene-description').value = description;
+        }
+    }
+
+    initializeLogScreen() {
+        this.renderScenes();
+        this.renderLogEntries();
+    }
+
+    renderScenes() {
+        const container = document.getElementById('scenes-container');
+        if (!container) return;
+
+        const scenes = sceneLog.getScenes();
+        if (scenes.length === 0) {
+            container.innerHTML = '<p class="text-secondary">No scenes yet</p>';
+            return;
+        }
+
+        container.innerHTML = scenes.map(scene => {
+            const isActive = scene.id === sceneLog.currentSceneId;
+            const entryCount = scene.entries.length;
+            
+            return `
+                <div class="scene-item ${isActive ? 'active' : ''}" data-scene-id="${scene.id}">
+                    <div class="scene-header">
+                        <h4>${scene.description}</h4>
+                        <div class="scene-meta">
+                            <span class="scene-time">${sceneLog.formatTimestamp(scene.timestamp)}</span>
+                            <span class="scene-entries">${entryCount} entries</span>
+                        </div>
+                    </div>
+                    <div class="scene-actions">
+                        <button class="btn btn-sm" onclick="app.switchToScene('${scene.id}')">
+                            ${isActive ? 'Current' : 'Switch to'}
+                        </button>
+                        <button class="btn btn-sm" onclick="app.deleteScene('${scene.id}')">Delete</button>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    renderLogEntries(filter = '') {
+        const container = document.getElementById('log-entries-container');
+        if (!container) return;
+
+        let entries;
+        if (filter) {
+            entries = sceneLog.getEntriesByType(filter);
+        } else {
+            entries = sceneLog.getRecentEntries(50);
+        }
+
+        if (entries.length === 0) {
+            container.innerHTML = '<p class="text-secondary">No log entries found</p>';
+            return;
+        }
+
+        container.innerHTML = entries.map(entry => this.renderLogEntry(entry)).join('');
+    }
+
+    searchLogEntries(query) {
+        const container = document.getElementById('log-entries-container');
+        if (!container) return;
+
+        if (!query.trim()) {
+            this.renderLogEntries();
+            return;
+        }
+
+        const results = sceneLog.searchEntries(query);
+        if (results.length === 0) {
+            container.innerHTML = '<p class="text-secondary">No matching entries found</p>';
+            return;
+        }
+
+        container.innerHTML = results.map(entry => this.renderLogEntry(entry)).join('');
+    }
+
+    filterLogEntries(type) {
+        this.renderLogEntries(type);
+    }
+
+    switchToScene(sceneId) {
+        const scene = sceneLog.switchToScene(sceneId);
+        if (scene) {
+            this.renderScenes();
+            this.updateCurrentSceneDisplay();
+            sceneLog.logNarrative(`Switched to scene: ${scene.description}`, 'scene-switch');
+        }
+    }
+
+    deleteScene(sceneId) {
+        if (confirm('Are you sure you want to delete this scene and all its entries?')) {
+            sceneLog.deleteScene(sceneId);
+            this.renderScenes();
+            this.updateCurrentSceneDisplay();
+        }
+    }
+
+    showNarrativeDialog() {
+        const dialog = document.getElementById('narrative-dialog');
+        const form = document.getElementById('narrative-form');
+        form.reset();
+        dialog.style.display = 'flex';
+    }
+
+    hideNarrativeDialog() {
+        const dialog = document.getElementById('narrative-dialog');
+        dialog.style.display = 'none';
+    }
+
+    handleNarrativeSubmit(e) {
+        e.preventDefault();
+        const text = document.getElementById('narrative-text').value.trim();
+        const category = document.getElementById('narrative-category').value;
+        
+        if (text) {
+            sceneLog.logNarrative(text, category);
+            this.hideNarrativeDialog();
+            this.updateRecentLogEntries();
+            this.renderLogEntries();
+        }
+    }
+
+    showOracleDialog() {
+        const dialog = document.getElementById('oracle-dialog');
+        const form = document.getElementById('oracle-form');
+        const resultDiv = document.getElementById('oracle-result');
+        
+        form.reset();
+        resultDiv.style.display = 'none';
+        dialog.style.display = 'flex';
+    }
+
+    hideOracleDialog() {
+        const dialog = document.getElementById('oracle-dialog');
+        dialog.style.display = 'none';
+    }
+
+    handleOracleSubmit(e) {
+        e.preventDefault();
+        const question = document.getElementById('oracle-question').value.trim();
+        const type = document.getElementById('oracle-type').value;
+        
+        if (type) {
+            const result = this.rollOracle(type);
+            sceneLog.logOracle({ Name: `Oracle (${type})`, $id: `oracle_${type}` }, result, question);
+            
+            this.displayOracleResult(result, question, type);
+            this.updateRecentLogEntries();
+        }
+    }
+
+    rollOracle(type) {
+        const roll = Math.floor(Math.random() * 100) + 1;
+        let result;
+        
+        switch (type) {
+            case 'yes-no':
+                result = roll <= 50 ? 'Yes' : 'No';
+                break;
+            case 'likely':
+                result = roll <= 75 ? 'Yes' : 'No';
+                break;
+            case 'unlikely':
+                result = roll <= 25 ? 'Yes' : 'No';
+                break;
+            case 'small-chance':
+                result = roll <= 10 ? 'Yes' : 'No';
+                break;
+            case 'sure-thing':
+                result = roll <= 90 ? 'Yes' : 'No';
+                break;
+            default:
+                result = roll <= 50 ? 'Yes' : 'No';
+        }
+
+        return { roll, result };
+    }
+
+    displayOracleResult(result, question, type) {
+        const resultDiv = document.getElementById('oracle-result');
+        const outcomeClass = result.result.toLowerCase() === 'yes' ? 'success' : 'failure';
+        
+        resultDiv.innerHTML = `
+            <div class="oracle-roll-result ${outcomeClass}">
+                <div class="oracle-question">${question || 'Oracle Roll'}</div>
+                <div class="oracle-outcome">
+                    <span class="roll-value">Rolled: ${result.roll}</span>
+                    <span class="result-text">${result.result}</span>
+                </div>
+            </div>
+        `;
+        resultDiv.style.display = 'block';
+    }
+
+    exportSceneLog() {
+        const logData = sceneLog.exportLog();
+        const dataStr = JSON.stringify(logData, null, 2);
+        const dataBlob = new Blob([dataStr], { type: 'application/json' });
+        
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(dataBlob);
+        link.download = `starforged-log-${new Date().toISOString().split('T')[0]}.json`;
+        link.click();
+    }
+
+    clearSceneLog() {
+        if (confirm('Are you sure you want to clear all scenes and log entries? This cannot be undone.')) {
+            sceneLog.clearAll();
+            this.renderScenes();
+            this.renderLogEntries();
+            this.updateCurrentSceneDisplay();
+            this.updateRecentLogEntries();
+        }
     }
 }
 

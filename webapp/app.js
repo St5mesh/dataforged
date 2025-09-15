@@ -164,6 +164,9 @@ class StarforgedApp {
             connectionsSubflow.init();
             connectionsSubflow.loadConnections();
         }
+        if (typeof recoverySystem !== 'undefined') {
+            recoverySystem.init();
+        }
     }
 
     // Session 0 Setup
@@ -611,25 +614,31 @@ class StarforgedApp {
     }
 
     displayCharacterMeters() {
-        const meters = ['health', 'spirit', 'supply'];
-        
-        meters.forEach(meter => {
-            const container = document.getElementById(`${meter}-meter`);
-            if (!container) return;
+        // Use the recovery system's enhanced meter displays if available
+        if (typeof recoverySystem !== 'undefined' && recoverySystem.initialized) {
+            recoverySystem.updateAllMeterDisplays();
+        } else {
+            // Fallback to basic meter display
+            const meters = ['health', 'spirit', 'supply'];
             
-            container.innerHTML = '';
-            const value = character.getMeter(meter);
-            
-            for (let i = 0; i < 5; i++) {
-                const box = document.createElement('div');
-                box.className = `meter-box ${i < value ? 'filled' : ''}`;
-                box.addEventListener('click', () => {
-                    character.setMeter(meter, i + 1);
-                    this.displayCharacterMeters();
-                });
-                container.appendChild(box);
-            }
-        });
+            meters.forEach(meter => {
+                const container = document.getElementById(`${meter}-meter`);
+                if (!container) return;
+                
+                container.innerHTML = '';
+                const value = character.getMeter(meter);
+                
+                for (let i = 0; i < 5; i++) {
+                    const box = document.createElement('div');
+                    box.className = `meter-box ${i < value ? 'filled' : ''}`;
+                    box.addEventListener('click', () => {
+                        character.setMeter(meter, i + 1);
+                        this.displayCharacterMeters();
+                    });
+                    container.appendChild(box);
+                }
+            });
+        }
 
         // Update momentum display
         const momentumValue = document.getElementById('momentum-value');

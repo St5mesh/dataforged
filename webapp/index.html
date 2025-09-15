@@ -187,6 +187,17 @@
                             <span id="momentum-value">+2</span>
                             <span class="momentum-range">(Max: 10, Reset: +2)</span>
                         </div>
+
+                        <!-- Recovery Actions -->
+                        <div class="recovery-actions">
+                            <h4>Recovery Moves</h4>
+                            <div class="recovery-buttons">
+                                <button id="heal-move-btn" class="btn recovery-btn">Heal</button>
+                                <button id="resupply-move-btn" class="btn recovery-btn">Resupply</button>
+                                <button id="endure-harm-btn" class="btn recovery-btn">Endure Harm</button>
+                                <button id="endure-stress-btn" class="btn recovery-btn">Endure Stress</button>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="character-assets">
@@ -418,6 +429,159 @@
         </div>
     </div>
 
+    <!-- Recovery Move Dialogs -->
+    <!-- Heal Move Dialog -->
+    <div id="heal-move-dialog" class="modal" style="display: none;">
+        <div class="modal-content">
+            <h3>Heal Move</h3>
+            <form id="heal-move-form">
+                <div class="move-option">
+                    <input type="radio" id="treatment" name="heal-type" value="treatment">
+                    <label for="treatment">Receive treatment from someone (+iron)</label>
+                    <p class="option-description">Someone with medical expertise tends to your wounds.</p>
+                </div>
+                <div class="move-option">
+                    <input type="radio" id="recuperate" name="heal-type" value="recuperate">
+                    <label for="recuperate">Recuperate in a safe place (+iron)</label>
+                    <p class="option-description">Rest and recover in a secure location.</p>
+                </div>
+                <div class="move-option">
+                    <input type="radio" id="heal-asset" name="heal-type" value="heal-asset">
+                    <label for="heal-asset">Use healing asset or equipment (+wits)</label>
+                    <p class="option-description">Apply medical supplies or technology.</p>
+                </div>
+                
+                <div class="modal-buttons">
+                    <button type="button" id="cancel-heal-move" class="btn">Cancel</button>
+                    <button type="button" id="execute-heal-move" class="btn btn-primary">Execute Move</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Resupply Move Dialog -->
+    <div id="resupply-move-dialog" class="modal" style="display: none;">
+        <div class="modal-content">
+            <h3>Resupply Move</h3>
+            <form id="resupply-move-form">
+                <div class="move-option">
+                    <input type="radio" id="barter" name="resupply-type" value="barter">
+                    <label for="barter">Barter for supplies (+supply)</label>
+                    <p class="option-description">Trade goods or services for needed supplies.</p>
+                </div>
+                <div class="move-option">
+                    <input type="radio" id="appeal" name="resupply-type" value="appeal">
+                    <label for="appeal">Make an appeal for supplies (+supply)</label>
+                    <p class="option-description">Ask for aid based on reputation or relationships.</p>
+                </div>
+                <div class="move-option">
+                    <input type="radio" id="trade" name="resupply-type" value="trade">
+                    <label for="trade">Trade for needed supplies (+supply)</label>
+                    <p class="option-description">Exchange resources for what you need.</p>
+                </div>
+                
+                <div class="modal-buttons">
+                    <button type="button" id="cancel-resupply-move" class="btn">Cancel</button>
+                    <button type="button" id="execute-resupply-move" class="btn btn-primary">Execute Move</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Endure Harm Move Dialog -->
+    <div id="endure-harm-dialog" class="modal" style="display: none;">
+        <div class="modal-content">
+            <h3>Endure Harm Move</h3>
+            <form id="endure-harm-form">
+                <div class="form-group">
+                    <label for="harm-amount">Harm Amount:</label>
+                    <select id="harm-amount">
+                        <option value="1">1 (Minor harm)</option>
+                        <option value="2">2 (Serious harm)</option>
+                        <option value="3">3 (Major harm)</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <input type="checkbox" id="resist-harm">
+                    <label for="resist-harm">Resist the harm (make the roll even if health > 0)</label>
+                </div>
+                
+                <div class="strong-hit-options">
+                    <h4>Strong Hit Options:</h4>
+                    <div class="move-option">
+                        <input type="radio" id="shake-off" name="endure-harm-choice" value="shake-off">
+                        <label for="shake-off">Shake it off (+1 health if not wounded)</label>
+                    </div>
+                    <div class="move-option">
+                        <input type="radio" id="embrace-pain" name="endure-harm-choice" value="embrace-pain">
+                        <label for="embrace-pain">Embrace the pain (+1 momentum)</label>
+                    </div>
+                </div>
+                
+                <div class="weak-hit-options">
+                    <h4>Weak Hit Option:</h4>
+                    <div class="form-group">
+                        <input type="checkbox" id="trade-momentum-for-health">
+                        <label for="trade-momentum-for-health">Trade momentum for health (-1 momentum, +1 health if not wounded)</label>
+                    </div>
+                </div>
+                
+                <div class="modal-buttons">
+                    <button type="button" id="cancel-endure-harm-move" class="btn">Cancel</button>
+                    <button type="button" id="execute-endure-harm-move" class="btn btn-primary">Execute Move</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Endure Stress Move Dialog -->
+    <div id="endure-stress-dialog" class="modal" style="display: none;">
+        <div class="modal-content">
+            <h3>Endure Stress Move</h3>
+            <form id="endure-stress-form">
+                <div class="form-group">
+                    <label for="stress-amount">Stress Amount:</label>
+                    <select id="stress-amount">
+                        <option value="1">1 (Minor stress)</option>
+                        <option value="2">2 (Serious stress)</option>
+                        <option value="3">3 (Major stress)</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <input type="checkbox" id="resist-stress">
+                    <label for="resist-stress">Resist the stress (make the roll even if spirit > 0)</label>
+                </div>
+                
+                <div class="strong-hit-options">
+                    <h4>Strong Hit Options:</h4>
+                    <div class="move-option">
+                        <input type="radio" id="shake-off-stress" name="endure-stress-choice" value="shake-off">
+                        <label for="shake-off-stress">Shake it off (+1 spirit if not shaken)</label>
+                    </div>
+                    <div class="move-option">
+                        <input type="radio" id="embrace-darkness" name="endure-stress-choice" value="embrace-darkness">
+                        <label for="embrace-darkness">Embrace the darkness (+1 momentum)</label>
+                    </div>
+                </div>
+                
+                <div class="weak-hit-options">
+                    <h4>Weak Hit Option:</h4>
+                    <div class="form-group">
+                        <input type="checkbox" id="trade-momentum-for-spirit">
+                        <label for="trade-momentum-for-spirit">Trade momentum for spirit (-1 momentum, +1 spirit if not shaken)</label>
+                    </div>
+                </div>
+                
+                <div class="modal-buttons">
+                    <button type="button" id="cancel-endure-stress-move" class="btn">Cancel</button>
+                    <button type="button" id="execute-endure-stress-move" class="btn btn-primary">Execute Move</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script src="game-data.js"></script>
     <script src="dice.js"></script>
     <script src="character.js"></script>
@@ -428,6 +592,7 @@
     <script src="subflows/expeditions.js"></script>
     <script src="subflows/combat.js"></script>
     <script src="subflows/connections.js"></script>
+    <script src="subflows/recovery.js"></script>
     <script src="app.js"></script>
 </body>
 </html>

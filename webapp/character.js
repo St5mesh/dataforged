@@ -355,8 +355,10 @@ class Character {
         // Check stats distribution
         const hasValidStats = this.validateStats();
 
-        // Check background vow
-        const hasBackgroundVow = this.vows.some(vow => vow.rank === 'epic');
+        // Check background vow (either in vows array or in the UI field)
+        const backgroundVowField = document.getElementById('background-vow');
+        const hasBackgroundVow = this.vows.some(vow => vow.rank === 'epic') || 
+                                 (backgroundVowField && backgroundVowField.value.trim().length > 0);
 
         return {
             hasTruths,

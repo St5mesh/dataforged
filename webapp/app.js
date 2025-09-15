@@ -56,6 +56,11 @@ class StarforgedApp {
             });
         });
 
+        // Background vow validation
+        document.getElementById('background-vow').addEventListener('input', () => {
+            this.updateSession0Validation();
+        });
+
         // Play screen events
         document.getElementById('move-category').addEventListener('change', (e) => {
             this.loadMovesByCategory(e.target.value);

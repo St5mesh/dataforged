@@ -18,6 +18,7 @@ class Character {
         this.momentum = 2;
         this.momentumMax = 10;
         this.momentumReset = 2;
+        this.nextMoveBonus = 0; // Temporary bonus for next move
         
         this.assets = [];
         this.vows = [];
@@ -47,6 +48,7 @@ class Character {
             momentum: this.momentum,
             momentumMax: this.momentumMax,
             momentumReset: this.momentumReset,
+            nextMoveBonus: this.nextMoveBonus,
             assets: this.assets,
             vows: this.vows,
             connections: this.connections,
@@ -63,6 +65,10 @@ class Character {
             try {
                 const data = JSON.parse(saved);
                 Object.assign(this, data);
+                // Ensure nextMoveBonus is initialized for existing saves
+                if (typeof this.nextMoveBonus === 'undefined') {
+                    this.nextMoveBonus = 0;
+                }
             } catch (error) {
                 console.error('Error loading character:', error);
             }
@@ -306,6 +312,20 @@ class Character {
     addMomentum(amount) {
         this.momentum = Math.min(this.momentumMax, this.momentum + amount);
         this.saveToStorage();
+    }
+
+    // Add next move bonus
+    addNextMoveBonus(amount) {
+        this.nextMoveBonus += amount;
+        this.saveToStorage();
+    }
+
+    // Use and clear next move bonus
+    useNextMoveBonus() {
+        const bonus = this.nextMoveBonus;
+        this.nextMoveBonus = 0;
+        this.saveToStorage();
+        return bonus;
     }
 
     // Truth management

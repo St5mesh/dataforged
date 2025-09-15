@@ -14,6 +14,7 @@
                 <button id="nav-session0" class="nav-btn active">Session 0</button>
                 <button id="nav-play" class="nav-btn" disabled>Play</button>
                 <button id="nav-character" class="nav-btn" disabled>Character</button>
+                <button id="nav-log" class="nav-btn" disabled>Scene Log</button>
             </nav>
         </header>
 
@@ -115,8 +116,17 @@
                 <div class="play-interface">
                     <div class="scene-frame">
                         <h3>Current Scene</h3>
+                        <div class="current-scene-info">
+                            <div id="current-scene-display">
+                                <h4 id="current-scene-title">Opening Scene</h4>
+                                <p id="current-scene-time">Just started</p>
+                            </div>
+                        </div>
                         <textarea id="scene-description" placeholder="Describe the current scene..."></textarea>
-                        <button id="frame-scene" class="btn">Frame New Scene</button>
+                        <div class="scene-actions">
+                            <button id="update-scene" class="btn">Update Scene</button>
+                            <button id="frame-new-scene" class="btn">Frame New Scene</button>
+                        </div>
                     </div>
 
                     <div class="move-selection">
@@ -137,6 +147,15 @@
 
                     <div id="move-interface"></div>
                     <div id="roll-results"></div>
+                    
+                    <!-- Recent Log Entries -->
+                    <div class="recent-log">
+                        <h3>Recent Activity</h3>
+                        <div id="recent-log-entries" class="log-entries">
+                            <!-- Recent entries will be populated here -->
+                        </div>
+                        <button id="view-full-log" class="btn">View Full Scene Log</button>
+                    </div>
                 </div>
             </section>
 
@@ -196,6 +215,44 @@
                             </select>
                         </div>
                         <div id="progress-tracks-list"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Scene Log Screen -->
+            <section id="log-screen" class="screen">
+                <h2>Scene Log</h2>
+                <div class="scene-log-interface">
+                    <div class="log-controls">
+                        <div class="log-filters">
+                            <input type="text" id="log-search" placeholder="Search log entries..." />
+                            <select id="log-filter-type">
+                                <option value="">All Entry Types</option>
+                                <option value="move">Moves</option>
+                                <option value="oracle">Oracles</option>
+                                <option value="narrative">Narrative</option>
+                                <option value="state-change">State Changes</option>
+                            </select>
+                        </div>
+                        <div class="log-actions">
+                            <button id="add-narrative-entry" class="btn">Add Note</button>
+                            <button id="export-log" class="btn">Export Log</button>
+                            <button id="clear-log" class="btn btn-danger">Clear All</button>
+                        </div>
+                    </div>
+
+                    <div class="scenes-list">
+                        <h3>Scenes</h3>
+                        <div id="scenes-container">
+                            <!-- Scenes will be populated here -->
+                        </div>
+                    </div>
+
+                    <div class="log-entries-display">
+                        <h3>Log Entries</h3>
+                        <div id="log-entries-container">
+                            <!-- Log entries will be populated here -->
+                        </div>
                     </div>
                 </div>
             </section>
@@ -263,10 +320,92 @@
         </div>
     </div>
 
+    <!-- Oracle Dialog -->
+    <div id="oracle-dialog" class="dialog-overlay" style="display: none;">
+        <div class="dialog">
+            <h3>Ask the Oracle</h3>
+            <form id="oracle-form">
+                <div class="form-group">
+                    <label for="oracle-question">Your Question:</label>
+                    <input type="text" id="oracle-question" placeholder="What do you want to know?">
+                </div>
+                
+                <div class="form-group">
+                    <label for="oracle-type">Oracle Type:</label>
+                    <select id="oracle-type" required>
+                        <option value="">Select oracle type...</option>
+                        <option value="yes-no">Yes/No Question</option>
+                        <option value="likely">Likely (75% Yes)</option>
+                        <option value="unlikely">Unlikely (25% Yes)</option>
+                        <option value="small-chance">Small Chance (10% Yes)</option>
+                        <option value="sure-thing">Sure Thing (90% Yes)</option>
+                    </select>
+                </div>
+
+                <div id="oracle-result" class="oracle-result" style="display: none;">
+                    <!-- Result will be displayed here -->
+                </div>
+
+                <div class="dialog-buttons">
+                    <button type="button" id="cancel-oracle" class="btn">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Roll Oracle</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Narrative Entry Dialog -->
+    <div id="narrative-dialog" class="dialog-overlay" style="display: none;">
+        <div class="dialog">
+            <h3>Add Narrative Entry</h3>
+            <form id="narrative-form">
+                <div class="form-group">
+                    <label for="narrative-text">Entry:</label>
+                    <textarea id="narrative-text" required placeholder="Describe what happened..."></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="narrative-category">Category:</label>
+                    <select id="narrative-category">
+                        <option value="narrative">Narrative</option>
+                        <option value="note">Note</option>
+                        <option value="discovery">Discovery</option>
+                        <option value="clue">Clue</option>
+                        <option value="threat">Threat</option>
+                    </select>
+                </div>
+
+                <div class="dialog-buttons">
+                    <button type="button" id="cancel-narrative" class="btn">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Add Entry</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- New Scene Dialog -->
+    <div id="new-scene-dialog" class="dialog-overlay" style="display: none;">
+        <div class="dialog">
+            <h3>Frame New Scene</h3>
+            <form id="new-scene-form">
+                <div class="form-group">
+                    <label for="new-scene-description">Scene Description:</label>
+                    <textarea id="new-scene-description" required placeholder="Describe the new scene..."></textarea>
+                </div>
+
+                <div class="dialog-buttons">
+                    <button type="button" id="cancel-new-scene" class="btn">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Create Scene</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script src="game-data.js"></script>
     <script src="dice.js"></script>
     <script src="character.js"></script>
     <script src="progress-tracks.js"></script>
+    <script src="scene-log.js"></script>
     <script src="moves.js"></script>
     <script src="app.js"></script>
 </body>

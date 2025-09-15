@@ -703,3 +703,321 @@ select {
     font-size: 0.9em;
     line-height: 1.4;
 }
+
+/* Scene Log Styles */
+.scene-log-interface {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    gap: 20px;
+    height: 70vh;
+}
+
+.log-controls {
+    grid-column: 1 / -1;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding: 15px;
+    background: var(--background-light);
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+}
+
+.log-filters {
+    display: flex;
+    gap: 10px;
+}
+
+.log-filters input, .log-filters select {
+    padding: 8px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    background: var(--background-dark);
+    color: var(--text-primary);
+}
+
+.log-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.scenes-list {
+    background: var(--background-light);
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    padding: 15px;
+    overflow-y: auto;
+}
+
+.scenes-container {
+    max-height: 60vh;
+    overflow-y: auto;
+}
+
+.scene-item {
+    background: var(--background-dark);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 12px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.scene-item:hover {
+    border-color: var(--accent-color);
+}
+
+.scene-item.active {
+    border-color: var(--secondary-color);
+    background: rgba(47, 146, 54, 0.1);
+}
+
+.scene-header h4 {
+    color: var(--accent-color);
+    margin-bottom: 8px;
+    font-size: 1.1em;
+}
+
+.scene-meta {
+    display: flex;
+    justify-content: space-between;
+    color: var(--text-secondary);
+    font-size: 0.85em;
+    margin-bottom: 8px;
+}
+
+.scene-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.btn-sm {
+    padding: 4px 8px;
+    font-size: 0.8em;
+}
+
+.log-entries-display {
+    background: var(--background-light);
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    padding: 15px;
+    overflow-y: auto;
+}
+
+.log-entries-container {
+    max-height: 60vh;
+    overflow-y: auto;
+}
+
+.log-entry {
+    background: var(--background-dark);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 12px;
+    margin-bottom: 12px;
+}
+
+.log-entry.compact {
+    padding: 8px;
+    margin-bottom: 6px;
+}
+
+.entry-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    color: var(--text-secondary);
+    font-size: 0.9em;
+}
+
+.entry-type {
+    background: var(--primary-color);
+    color: white;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 0.8em;
+    text-transform: uppercase;
+}
+
+.entry-type-move .entry-type {
+    background: var(--accent-color);
+}
+
+.entry-type-oracle .entry-type {
+    background: var(--warning-color);
+}
+
+.entry-type-narrative .entry-type {
+    background: var(--secondary-color);
+}
+
+.entry-type-state-change .entry-type {
+    background: var(--primary-color);
+}
+
+.entry-content {
+    margin-bottom: 8px;
+}
+
+.entry-description {
+    font-weight: 500;
+    margin-bottom: 6px;
+}
+
+.entry-question {
+    font-style: italic;
+    color: var(--text-secondary);
+    margin: 6px 0;
+}
+
+.entry-text {
+    background: rgba(0, 179, 200, 0.1);
+    padding: 8px;
+    border-radius: 4px;
+    border-left: 3px solid var(--accent-color);
+    margin: 6px 0;
+}
+
+.entry-scene {
+    color: var(--text-secondary);
+    font-size: 0.85em;
+    border-top: 1px solid var(--border-color);
+    padding-top: 6px;
+}
+
+.log-roll {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    background: rgba(60, 112, 164, 0.1);
+    padding: 6px 8px;
+    border-radius: 4px;
+    margin: 6px 0;
+}
+
+.action-die, .challenge-dice, .oracle-roll {
+    background: var(--background-light);
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-family: monospace;
+    font-weight: bold;
+}
+
+.outcome {
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-weight: bold;
+    text-transform: uppercase;
+    font-size: 0.8em;
+}
+
+.outcome.strong-hit {
+    background: var(--secondary-color);
+    color: white;
+}
+
+.outcome.weak-hit {
+    background: var(--warning-color);
+    color: white;
+}
+
+.outcome.miss {
+    background: var(--danger-color);
+    color: white;
+}
+
+/* Recent Log in Play Screen */
+.recent-log {
+    background: var(--background-light);
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    padding: 15px;
+    margin-top: 20px;
+}
+
+.recent-log h3 {
+    color: var(--accent-color);
+    margin-bottom: 15px;
+}
+
+.recent-log .log-entries {
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+/* Current Scene Display */
+.current-scene-info {
+    background: var(--background-light);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 12px;
+    margin-bottom: 12px;
+}
+
+.current-scene-info h4 {
+    color: var(--accent-color);
+    margin-bottom: 6px;
+}
+
+.current-scene-info p {
+    color: var(--text-secondary);
+    font-size: 0.9em;
+}
+
+.scene-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+/* Oracle Result Display */
+.oracle-result {
+    background: var(--background-dark);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 15px;
+    margin-top: 15px;
+}
+
+.oracle-roll-result {
+    text-align: center;
+}
+
+.oracle-roll-result.success {
+    border-left: 4px solid var(--secondary-color);
+}
+
+.oracle-roll-result.failure {
+    border-left: 4px solid var(--danger-color);
+}
+
+.oracle-question {
+    font-weight: bold;
+    margin-bottom: 10px;
+    color: var(--text-primary);
+}
+
+.oracle-outcome {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    margin-top: 10px;
+}
+
+.roll-value {
+    background: var(--background-light);
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-family: monospace;
+    font-weight: bold;
+}
+
+.result-text {
+    font-size: 1.2em;
+    font-weight: bold;
+    color: var(--accent-color);
+}

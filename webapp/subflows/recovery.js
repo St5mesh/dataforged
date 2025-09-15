@@ -273,7 +273,13 @@ class RecoverySystem {
         if (result.outcome === 'strong_hit') {
             // Strong hit: +2 health
             this.changeHealth(2);
-            sceneLog.addEntry('outcome', 'Strong hit on Heal: +2 health');
+            // On strong hit, also clear wounded condition if present
+            if (character.getCondition('wounded')) {
+                character.setCondition('wounded', false);
+                sceneLog.addEntry('outcome', 'Strong hit on Heal: +2 health, cleared wounded condition');
+            } else {
+                sceneLog.addEntry('outcome', 'Strong hit on Heal: +2 health');
+            }
             
         } else if (result.outcome === 'weak_hit') {
             // Weak hit: +1 health
@@ -342,7 +348,13 @@ class RecoverySystem {
         if (result.outcome === 'strong_hit') {
             // Strong hit: +2 spirit
             this.changeSpirit(2);
-            sceneLog.addEntry('outcome', 'Strong hit on Hearten: +2 spirit');
+            // On strong hit, also clear shaken condition if present
+            if (character.getCondition('shaken')) {
+                character.setCondition('shaken', false);
+                sceneLog.addEntry('outcome', 'Strong hit on Hearten: +2 spirit, cleared shaken condition');
+            } else {
+                sceneLog.addEntry('outcome', 'Strong hit on Hearten: +2 spirit');
+            }
             
         } else if (result.outcome === 'weak_hit') {
             // Weak hit: +1 spirit
@@ -706,13 +718,187 @@ class RecoverySystem {
     }
 
     handleZeroHealthCondition() {
-        // This would trigger Face Death or marking debilities
-        sceneLog.addEntry('condition', 'Health is 0: Must mark wounded/permanently harmed or Face Death');
+        // Character must choose: mark wounded/maimed or Face Death
+        this.showZeroHealthDialog();
     }
 
     handleZeroSpiritCondition() {
-        // This would trigger Face Desolation or marking debilities
-        sceneLog.addEntry('condition', 'Spirit is 0: Must mark shaken/corrupted or Face Desolation');
+        // Character must choose: mark shaken/corrupted or Face Desolation
+        this.showZeroSpiritDialog();
+    }
+
+    showZeroHealthDialog() {
+        const dialog = document.getElementById('zero-health-dialog') || this.createZeroHealthDialog();
+        dialog.style.display = 'block';
+    }
+
+    showZeroSpiritDialog() {
+        const dialog = document.getElementById('zero-spirit-dialog') || this.createZeroSpiritDialog();
+        dialog.style.display = 'block';
+    }
+
+    createZeroHealthDialog() {
+        const dialog = document.createElement('div');
+        dialog.id = 'zero-health-dialog';
+        dialog.className = 'modal';
+        dialog.innerHTML = `
+            <div class="dialog">
+                <h3>Health is Zero!</h3>
+                <p>Your health has been reduced to zero. Choose one option:</p>
+                
+                <div class="form-group">
+                    <label>
+                        <input type="radio" name="zero-health-choice" value="wounded">
+                        Mark Wounded condition (-1 to action rolls until you heal)
+                    </label>
+                </div>
+                
+                <div class="form-group">
+                    <label>
+                        <input type="radio" name="zero-health-choice" value="maimed">
+                        Mark Maimed condition (permanent -1 to action rolls)
+                    </label>
+                </div>
+                
+                <div class="form-group">
+                    <label>
+                        <input type="radio" name="zero-health-choice" value="face-death">
+                        Face Death (make a progress move)
+                    </label>
+                </div>
+                
+                <div class="dialog-buttons">
+                    <button id="confirm-zero-health" class="btn btn-primary">Confirm</button>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(dialog);
+        
+        document.getElementById('confirm-zero-health').addEventListener('click', () => {
+            this.handleZeroHealthChoice();
+        });
+        
+        return dialog;
+    }
+
+    createZeroSpiritDialog() {
+        const dialog = document.createElement('div');
+        dialog.id = 'zero-spirit-dialog';
+        dialog.className = 'modal';
+        dialog.innerHTML = `
+            <div class="dialog">
+                <h3>Spirit is Zero!</h3>
+                <p>Your spirit has been reduced to zero. Choose one option:</p>
+                
+                <div class="form-group">
+                    <label>
+                        <input type="radio" name="zero-spirit-choice" value="shaken">
+                        Mark Shaken condition (-1 to action rolls until you recover)
+                    </label>
+                </div>
+                
+                <div class="form-group">
+                    <label>
+                        <input type="radio" name="zero-spirit-choice" value="corrupted">
+                        Mark Corrupted condition (permanent -1 to action rolls)
+                    </label>
+                </div>
+                
+                <div class="form-group">
+                    <label>
+                        <input type="radio" name="zero-spirit-choice" value="face-desolation">
+                        Face Desolation (make a progress move)
+                    </label>
+                </div>
+                
+                <div class="dialog-buttons">
+                    <button id="confirm-zero-spirit" class="btn btn-primary">Confirm</button>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(dialog);
+        
+        document.getElementById('confirm-zero-spirit').addEventListener('click', () => {
+            this.handleZeroSpiritChoice();
+        });
+        
+        return dialog;
+    }
+
+    handleZeroHealthChoice() {
+        const choice = document.querySelector('input[name="zero-health-choice"]:checked')?.value;
+        if (!choice) {
+            alert('Please select an option');
+            return;
+        }
+
+        const dialog = document.getElementById('zero-health-dialog');
+        
+        switch (choice) {
+            case 'wounded':
+                character.setCondition('wounded', true);
+                character.setMeter('health', 1); // Restore 1 health
+                sceneLog.addEntry('condition', 'Marked wounded condition and restored 1 health');
+                break;
+            case 'maimed':
+                character.setCondition('maimed', true);
+                character.setMeter('health', 1); // Restore 1 health
+                sceneLog.addEntry('condition', 'Marked maimed condition (permanent) and restored 1 health');
+                break;
+            case 'face-death':
+                this.showFaceDeathDialog();
+                return; // Don't hide dialog yet
+        }
+        
+        dialog.style.display = 'none';
+        app.updateCharacterDisplay();
+    }
+
+    handleZeroSpiritChoice() {
+        const choice = document.querySelector('input[name="zero-spirit-choice"]:checked')?.value;
+        if (!choice) {
+            alert('Please select an option');
+            return;
+        }
+
+        const dialog = document.getElementById('zero-spirit-dialog');
+        
+        switch (choice) {
+            case 'shaken':
+                character.setCondition('shaken', true);
+                character.setMeter('spirit', 1); // Restore 1 spirit
+                sceneLog.addEntry('condition', 'Marked shaken condition and restored 1 spirit');
+                break;
+            case 'corrupted':
+                character.setCondition('corrupted', true);
+                character.setMeter('spirit', 1); // Restore 1 spirit
+                sceneLog.addEntry('condition', 'Marked corrupted condition (permanent) and restored 1 spirit');
+                break;
+            case 'face-desolation':
+                this.showFaceDesolationDialog();
+                return; // Don't hide dialog yet
+        }
+        
+        dialog.style.display = 'none';
+        app.updateCharacterDisplay();
+    }
+
+    showFaceDeathDialog() {
+        // This would show the Face Death progress move dialog
+        alert('Face Death move not yet implemented - marking wounded condition instead');
+        character.setCondition('wounded', true);
+        character.setMeter('health', 1);
+        document.getElementById('zero-health-dialog').style.display = 'none';
+    }
+
+    showFaceDesolationDialog() {
+        // This would show the Face Desolation progress move dialog
+        alert('Face Desolation move not yet implemented - marking shaken condition instead');
+        character.setCondition('shaken', true);
+        character.setMeter('spirit', 1);
+        document.getElementById('zero-spirit-dialog').style.display = 'none';
     }
 
     // Update all meter displays

@@ -35,6 +35,16 @@ class Character {
         
         this.experience = 0; // Available experience to spend
         
+        // Conditions/Debilities tracking
+        this.conditions = {
+            wounded: false,          // -1 to action rolls
+            shaken: false,           // -1 to action rolls  
+            unprepared: false,       // -1 to action rolls
+            encumbered: false,       // -1 to action rolls
+            maimed: false,           // permanent harm, -1 to action rolls
+            corrupted: false         // permanent spiritual harm, -1 to action rolls
+        };
+        
         this.sessionComplete = false;
         
         this.loadFromStorage();
@@ -53,6 +63,7 @@ class Character {
             vows: this.vows,
             connections: this.connections,
             truths: this.truths,
+            conditions: this.conditions,
             sessionComplete: this.sessionComplete
         };
         localStorage.setItem('starforged-character', JSON.stringify(data));
@@ -418,6 +429,61 @@ class Character {
             current: this.experience,
             legacyTracks: this.legacyTracks
         };
+    }
+
+    // Condition (debility) management
+    setCondition(condition, value) {
+        if (this.conditions.hasOwnProperty(condition)) {
+            const wasSet = this.conditions[condition];
+            this.conditions[condition] = value;
+            this.saveToStorage();
+            
+            const action = value ? 'marked' : 'cleared';
+            sceneLog.addEntry('condition', `${condition.charAt(0).toUpperCase() + condition.slice(1)} condition ${action}`);
+            
+            return { changed: wasSet !== value, previous: wasSet };
+        }
+        return { changed: false, previous: false };
+    }
+
+    getCondition(condition) {
+        return this.conditions[condition] || false;
+    }
+
+    // Get total condition penalty for action rolls
+    getConditionPenalty() {
+        let penalty = 0;
+        Object.keys(this.conditions).forEach(condition => {
+            if (this.conditions[condition]) {
+                penalty += 1; // Each condition is -1 to action rolls
+            }
+        });
+        return -penalty; // Return as negative number
+    }
+
+    // Clear all temporary conditions (wounded, shaken, unprepared, encumbered)
+    clearTemporaryConditions() {
+        const tempConditions = ['wounded', 'shaken', 'unprepared', 'encumbered'];
+        let cleared = 0;
+        
+        tempConditions.forEach(condition => {
+            if (this.conditions[condition]) {
+                this.conditions[condition] = false;
+                cleared++;
+            }
+        });
+        
+        if (cleared > 0) {
+            this.saveToStorage();
+            sceneLog.addEntry('condition', `Cleared ${cleared} temporary condition(s)`);
+        }
+        
+        return cleared;
+    }
+
+    // Check if character has any permanent conditions
+    hasPermanentConditions() {
+        return this.conditions.maimed || this.conditions.corrupted;
     }
 
     // Continue a Legacy move implementation

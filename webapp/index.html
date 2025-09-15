@@ -188,6 +188,14 @@
                             <span class="momentum-range">(Max: 10, Reset: +2)</span>
                         </div>
 
+                        <!-- Conditions/Debilities -->
+                        <div class="conditions-section">
+                            <h4>Conditions</h4>
+                            <div id="character-conditions" class="conditions-list">
+                                <!-- Conditions will be populated here -->
+                            </div>
+                        </div>
+
                         <!-- Recovery Actions -->
                         <div class="recovery-actions">
                             <h4>Recovery Moves</h4>
@@ -226,8 +234,9 @@
                                 </div>
                             </div>
                             <div class="advancement-buttons">
-                                <button id="advance-asset-btn" class="btn btn-secondary">Advance Asset (2-3 XP)</button>
-                                <button id="legacy-progress-btn" class="btn btn-secondary">Progress Legacy</button>
+                                <button id="spend-experience-btn" class="btn btn-secondary">Spend Experience</button>
+                                <button id="mark-milestone-btn" class="btn btn-secondary">Mark Milestone</button>
+                                <button id="manage-assets-btn" class="btn btn-secondary">Manage Assets</button>
                             </div>
                         </div>
                     </div>
@@ -714,6 +723,7 @@
     <script src="subflows/combat.js"></script>
     <script src="subflows/connections.js"></script>
     <script src="subflows/recovery.js"></script>
+    <script src="subflows/advancement.js"></script>
     <script src="app.js"></script>
 </body>
 </html>

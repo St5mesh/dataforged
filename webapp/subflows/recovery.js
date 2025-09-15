@@ -38,6 +38,8 @@ class RecoverySystem {
         document.addEventListener('click', (e) => {
             if (e.target.id === 'heal-move-btn') {
                 this.showHealMoveDialog();
+            } else if (e.target.id === 'hearten-move-btn') {
+                this.showHeartenMoveDialog();
             } else if (e.target.id === 'resupply-move-btn') {
                 this.showResupplyMoveDialog();
             } else if (e.target.id === 'endure-harm-btn') {
@@ -53,6 +55,10 @@ class RecoverySystem {
                 this.executeHealMove();
             } else if (e.target.id === 'cancel-heal-move') {
                 this.hideHealMoveDialog();
+            } else if (e.target.id === 'execute-hearten-move') {
+                this.executeHeartenMove();
+            } else if (e.target.id === 'cancel-hearten-move') {
+                this.hideHeartenMoveDialog();
             } else if (e.target.id === 'execute-resupply-move') {
                 this.executeResupplyMove();
             } else if (e.target.id === 'cancel-resupply-move') {
@@ -265,6 +271,75 @@ class RecoverySystem {
         } else if (result.outcome === 'miss') {
             // Miss: no healing, possible complication
             sceneLog.addEntry('outcome', 'Miss on Heal: No healing. Your condition worsens or you face a complication.');
+        }
+    }
+
+    // Hearten move dialog and execution
+    showHeartenMoveDialog() {
+        const dialog = document.getElementById('hearten-move-dialog');
+        if (dialog) {
+            dialog.style.display = 'block';
+        }
+    }
+
+    hideHeartenMoveDialog() {
+        const dialog = document.getElementById('hearten-move-dialog');
+        if (dialog) {
+            dialog.style.display = 'none';
+        }
+    }
+
+    executeHeartenMove() {
+        const heartenType = document.querySelector('input[name="hearten-type"]:checked')?.value;
+        if (!heartenType) {
+            alert('Please select a hearten option');
+            return;
+        }
+
+        let moveText = '';
+        let rollStat = 'heart'; // Default stat for most hearten options
+
+        switch (heartenType) {
+            case 'socialize':
+                moveText = 'Socializing or seeking entertainment';
+                rollStat = 'heart';
+                break;
+            case 'quiet-meditation':
+                moveText = 'Finding solace in quiet contemplation';
+                rollStat = 'spirit';
+                break;
+            case 'creative':
+                moveText = 'Creating something or indulging in a pastime';
+                rollStat = 'wits';
+                break;
+        }
+
+        // Execute the move
+        const result = moves.executeMove('Hearten', rollStat, 0, moveText);
+        
+        // Process results based on outcome
+        this.processHeartenMoveResult(result, heartenType);
+        
+        // Log to scene
+        sceneLog.addEntry('move', `**Hearten:** ${moveText}`, result);
+        
+        this.hideHeartenMoveDialog();
+    }
+
+    processHeartenMoveResult(result, heartenType) {
+        if (result.outcome === 'strong_hit') {
+            // Strong hit: +2 spirit
+            this.changeSpirit(2);
+            sceneLog.addEntry('outcome', 'Strong hit on Hearten: +2 spirit');
+            
+        } else if (result.outcome === 'weak_hit') {
+            // Weak hit: +1 spirit
+            this.changeSpirit(1);
+            sceneLog.addEntry('outcome', 'Weak hit on Hearten: +1 spirit');
+            
+        } else if (result.outcome === 'miss') {
+            // Miss: no recovery, possible complication
+            sceneLog.addEntry('outcome', 'Miss on Hearten: No recovery. You are dejected or your efforts backfire.');
         }
     }
 

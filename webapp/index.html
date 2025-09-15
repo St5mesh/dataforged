@@ -193,6 +193,7 @@
                             <h4>Recovery Moves</h4>
                             <div class="recovery-buttons">
                                 <button id="heal-move-btn" class="btn recovery-btn">Heal</button>
+                                <button id="hearten-move-btn" class="btn recovery-btn">Hearten</button>
                                 <button id="resupply-move-btn" class="btn recovery-btn">Resupply</button>
                                 <button id="endure-harm-btn" class="btn recovery-btn">Endure Harm</button>
                                 <button id="endure-stress-btn" class="btn recovery-btn">Endure Stress</button>
@@ -454,6 +455,35 @@
                 <div class="modal-buttons">
                     <button type="button" id="cancel-heal-move" class="btn">Cancel</button>
                     <button type="button" id="execute-heal-move" class="btn btn-primary">Execute Move</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Hearten Move Dialog -->
+    <div id="hearten-move-dialog" class="modal" style="display: none;">
+        <div class="modal-content">
+            <h3>Hearten Move</h3>
+            <form id="hearten-move-form">
+                <div class="move-option">
+                    <input type="radio" id="socialize" name="hearten-type" value="socialize">
+                    <label for="socialize">Socialize or seek entertainment (+heart)</label>
+                    <p class="option-description">Share fellowship with others and lift your spirits.</p>
+                </div>
+                <div class="move-option">
+                    <input type="radio" id="quiet-meditation" name="hearten-type" value="quiet-meditation">
+                    <label for="quiet-meditation">Find solace in quiet contemplation (+spirit)</label>
+                    <p class="option-description">Meditate, pray, or reflect in solitude.</p>
+                </div>
+                <div class="move-option">
+                    <input type="radio" id="creative" name="hearten-type" value="creative">
+                    <label for="creative">Create something or indulge in a pastime (+wits)</label>
+                    <p class="option-description">Express yourself through art, craft, or hobby.</p>
+                </div>
+                
+                <div class="modal-buttons">
+                    <button type="button" id="cancel-hearten-move" class="btn">Cancel</button>
+                    <button type="button" id="execute-hearten-move" class="btn btn-primary">Execute Move</button>
                 </div>
             </form>
         </div>

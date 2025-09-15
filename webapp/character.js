@@ -378,6 +378,47 @@ class Character {
         }
         return false;
     }
+
+    // Asset management and advancement
+    spendExperience(cost, description) {
+        if (this.experience < cost) return false;
+        
+        this.experience -= cost;
+        this.saveToStorage();
+        
+        sceneLog.addEntry('advance', `Spent ${cost} experience: ${description}`);
+        return true;
+    }
+
+    advanceAsset(assetId, isNew = false) {
+        const cost = isNew ? 3 : 2;
+        const action = isNew ? 'acquired' : 'upgraded';
+        
+        if (!this.spendExperience(cost, `${action} asset`)) {
+            return false;
+        }
+        
+        // Asset management would be handled by the asset system
+        // For now, just log the advancement
+        sceneLog.addEntry('advance', `Asset ${action} for ${cost} experience`);
+        return true;
+    }
+
+    // Experience earning from legacy tracks
+    earnExperience(amount, source) {
+        this.experience += amount;
+        this.saveToStorage();
+        
+        sceneLog.addEntry('experience', `Earned ${amount} experience from ${source}`);
+    }
+
+    // Get current experience status
+    getExperienceStatus() {
+        return {
+            current: this.experience,
+            legacyTracks: this.legacyTracks
+        };
+    }
 }
 
 // Create global instance

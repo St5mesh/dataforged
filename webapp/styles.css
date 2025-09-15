@@ -1,0 +1,492 @@
+/* Starforged Webapp Styles */
+
+:root {
+    --primary-color: #3C70A4;
+    --secondary-color: #2F9236;
+    --danger-color: #C53030;
+    --warning-color: #D69E2E;
+    --background-dark: #1A1A1A;
+    --background-light: #2D2D2D;
+    --text-primary: #E2E8F0;
+    --text-secondary: #A0AEC0;
+    --border-color: #4A5568;
+    --accent-color: #00B3C8;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: var(--background-dark);
+    color: var(--text-primary);
+    line-height: 1.6;
+    min-height: 100vh;
+}
+
+#app {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* Header Styles */
+header {
+    background: var(--background-light);
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 30px;
+    border: 1px solid var(--border-color);
+}
+
+header h1 {
+    color: var(--accent-color);
+    font-size: 2.5em;
+    margin-bottom: 15px;
+    text-align: center;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+nav {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+}
+
+.nav-btn {
+    padding: 10px 20px;
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: all 0.3s ease;
+}
+
+.nav-btn:hover:not(:disabled) {
+    background: #2A5A8A;
+    transform: translateY(-2px);
+}
+
+.nav-btn:disabled {
+    background: #555;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.nav-btn.active {
+    background: var(--accent-color);
+}
+
+/* Screen Management */
+.screen {
+    display: none;
+    background: var(--background-light);
+    border-radius: 8px;
+    padding: 30px;
+    border: 1px solid var(--border-color);
+}
+
+.screen.active {
+    display: block;
+}
+
+.screen h2 {
+    color: var(--accent-color);
+    margin-bottom: 25px;
+    font-size: 2em;
+    border-bottom: 2px solid var(--accent-color);
+    padding-bottom: 10px;
+}
+
+/* Creation Steps */
+.creation-step {
+    margin-bottom: 30px;
+    padding: 20px;
+    background: var(--background-dark);
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+}
+
+.creation-step h3 {
+    color: var(--secondary-color);
+    margin-bottom: 15px;
+    font-size: 1.4em;
+}
+
+.creation-step p {
+    color: var(--text-secondary);
+    margin-bottom: 15px;
+}
+
+/* Button Styles */
+.btn {
+    padding: 10px 15px;
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+.btn:hover:not(:disabled) {
+    background: #2A5A8A;
+    transform: translateY(-1px);
+}
+
+.btn:disabled {
+    background: #555;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.btn-primary {
+    background: var(--secondary-color);
+    font-size: 16px;
+    padding: 12px 25px;
+}
+
+.btn-primary:hover:not(:disabled) {
+    background: #237A29;
+}
+
+/* Form Elements */
+input, select, textarea {
+    background: var(--background-dark);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 2px rgba(0, 179, 200, 0.2);
+}
+
+textarea {
+    width: 100%;
+    min-height: 80px;
+    resize: vertical;
+}
+
+select {
+    cursor: pointer;
+}
+
+/* Stats Container */
+#stats-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 15px;
+}
+
+.stat {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    background: var(--background-dark);
+    border-radius: 4px;
+    border: 1px solid var(--border-color);
+}
+
+.stat label {
+    font-weight: bold;
+    color: var(--text-primary);
+}
+
+.stat select {
+    width: 60px;
+}
+
+/* Progress Tracks */
+.progress-track {
+    margin-top: 15px;
+}
+
+.progress-boxes {
+    display: flex;
+    gap: 3px;
+    margin-top: 10px;
+}
+
+.progress-box {
+    width: 30px;
+    height: 30px;
+    border: 2px solid var(--border-color);
+    background: var(--background-dark);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.progress-box.filled {
+    background: var(--secondary-color);
+    border-color: var(--secondary-color);
+}
+
+.progress-box.ticked {
+    background: var(--warning-color);
+    border-color: var(--warning-color);
+}
+
+.progress-box:hover {
+    border-color: var(--accent-color);
+}
+
+/* Meters */
+.meter {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+    gap: 15px;
+}
+
+.meter label {
+    min-width: 80px;
+    font-weight: bold;
+}
+
+.meter-track {
+    display: flex;
+    gap: 3px;
+}
+
+.meter-box {
+    width: 25px;
+    height: 25px;
+    border: 2px solid var(--border-color);
+    background: var(--background-dark);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.meter-box.filled {
+    background: var(--secondary-color);
+    border-color: var(--secondary-color);
+}
+
+.meter-box:hover {
+    border-color: var(--accent-color);
+}
+
+/* Character Sheet */
+.character-sheet {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 30px;
+}
+
+.character-stats, .character-meters, .character-assets, .character-vows {
+    background: var(--background-dark);
+    padding: 20px;
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+}
+
+.character-stats h3, .character-meters h3, .character-assets h3, .character-vows h3 {
+    color: var(--secondary-color);
+    margin-bottom: 15px;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 8px;
+}
+
+/* Play Interface */
+.play-interface {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+}
+
+.scene-frame, .move-selection, .always-available {
+    background: var(--background-dark);
+    padding: 20px;
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+}
+
+.scene-frame h3, .move-selection h3 {
+    color: var(--secondary-color);
+    margin-bottom: 15px;
+}
+
+.always-available {
+    grid-column: 1 / -1;
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    padding: 15px;
+}
+
+/* Move Interface */
+#move-interface {
+    grid-column: 1 / -1;
+    background: var(--background-dark);
+    padding: 20px;
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+    margin-top: 20px;
+    display: none;
+}
+
+#move-interface.active {
+    display: block;
+}
+
+/* Roll Results */
+#roll-results {
+    grid-column: 1 / -1;
+    background: var(--background-dark);
+    padding: 20px;
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+    margin-top: 20px;
+    display: none;
+}
+
+#roll-results.active {
+    display: block;
+}
+
+.roll-result {
+    padding: 15px;
+    border-radius: 4px;
+    margin-bottom: 15px;
+}
+
+.roll-result.strong-hit {
+    background: rgba(47, 146, 54, 0.2);
+    border: 1px solid var(--secondary-color);
+}
+
+.roll-result.weak-hit {
+    background: rgba(214, 158, 46, 0.2);
+    border: 1px solid var(--warning-color);
+}
+
+.roll-result.miss {
+    background: rgba(197, 48, 48, 0.2);
+    border: 1px solid var(--danger-color);
+}
+
+/* Dice Display */
+.dice-roll {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin: 10px 0;
+}
+
+.die {
+    width: 40px;
+    height: 40px;
+    background: var(--primary-color);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+    font-size: 18px;
+}
+
+.die.d6 {
+    background: var(--secondary-color);
+}
+
+.die.d10 {
+    background: var(--danger-color);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .play-interface {
+        grid-template-columns: 1fr;
+    }
+    
+    .character-sheet {
+        grid-template-columns: 1fr;
+    }
+    
+    nav {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    #stats-container {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Utility Classes */
+.hidden {
+    display: none !important;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.text-secondary {
+    color: var(--text-secondary);
+}
+
+.momentum-range {
+    color: var(--text-secondary);
+    font-size: 0.9em;
+    margin-left: 10px;
+}
+
+#momentum-value {
+    font-weight: bold;
+    font-size: 1.2em;
+    color: var(--accent-color);
+}
+
+/* Asset and Truth Containers */
+#truths-container, #paths-container, #assets-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.truth-item, .asset-item {
+    background: var(--background-dark);
+    border: 2px solid var(--border-color);
+    border-radius: 6px;
+    padding: 15px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.truth-item:hover, .asset-item:hover {
+    border-color: var(--accent-color);
+}
+
+.truth-item.selected, .asset-item.selected {
+    border-color: var(--secondary-color);
+    background: rgba(47, 146, 54, 0.1);
+}
+
+.truth-item h4, .asset-item h4 {
+    color: var(--accent-color);
+    margin-bottom: 10px;
+}
+
+.truth-item p, .asset-item p {
+    color: var(--text-secondary);
+    font-size: 0.9em;
+    line-height: 1.4;
+}

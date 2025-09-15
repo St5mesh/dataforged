@@ -25,6 +25,15 @@ class Character {
         
         this.truths = [];
         
+        // Legacy tracks
+        this.legacyTracks = {
+            quests: { ticks: 0, completed: false },
+            bonds: { ticks: 0, completed: false },
+            discoveries: { ticks: 0, completed: false }
+        };
+        
+        this.experience = 0; // Available experience to spend
+        
         this.sessionComplete = false;
         
         this.loadFromStorage();
@@ -242,6 +251,61 @@ class Character {
         const vow = this.vows.find(v => v.id === vowId);
         if (!vow) return 0;
         return Math.min(40, vow.progress * 4 + vow.ticks);
+    }
+
+    // Legacy track management
+    markLegacyTrack(trackName, amount) {
+        if (!this.legacyTracks[trackName]) return false;
+
+        const track = this.legacyTracks[trackName];
+        track.ticks += amount;
+
+        // Check for completed boxes (4 ticks = 1 box)
+        while (track.ticks >= 4) {
+            track.ticks -= 4;
+            
+            // Each completed box earns 2 experience (or 1 if track is completed)
+            const experienceGained = track.completed ? 1 : 2;
+            this.experience += experienceGained;
+            
+            // Check if track is now complete (10 boxes)
+            if (!track.completed) {
+                const boxes = Math.floor((track.ticks + (track.ticks >= 4 ? 4 : 0)) / 4);
+                if (boxes >= 10) {
+                    track.completed = true;
+                    sceneLog.logNarrative(`${trackName} legacy track completed! Future progress earns 1 experience instead of 2.`, 'legacy-complete');
+                }
+            }
+        }
+
+        this.saveToStorage();
+        return true;
+    }
+
+    getLegacyTrackScore(trackName) {
+        if (!this.legacyTracks[trackName]) return 0;
+        const track = this.legacyTracks[trackName];
+        const boxes = Math.floor(track.ticks / 4);
+        const bonus = track.completed ? 10 : 0;
+        return Math.min(40, boxes * 4 + (track.ticks % 4) + bonus);
+    }
+
+    // Endure stress method
+    endureStress(amount) {
+        this.meters.spirit = Math.max(0, this.meters.spirit - amount);
+        this.saveToStorage();
+        
+        // Check if spirit is 0 and handle debilities
+        if (this.meters.spirit === 0) {
+            // TODO: Handle debilities and face desolation
+            console.log('Spirit is 0 - face desolation or mark debility');
+        }
+    }
+
+    // Add momentum
+    addMomentum(amount) {
+        this.momentum = Math.min(this.momentumMax, this.momentum + amount);
+        this.saveToStorage();
     }
 
     // Truth management

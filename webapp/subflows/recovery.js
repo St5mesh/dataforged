@@ -38,8 +38,14 @@ class RecoverySystem {
         document.addEventListener('click', (e) => {
             if (e.target.id === 'heal-move-btn') {
                 this.showHealMoveDialog();
+            } else if (e.target.id === 'hearten-move-btn') {
+                this.showHeartenMoveDialog();
             } else if (e.target.id === 'resupply-move-btn') {
                 this.showResupplyMoveDialog();
+            } else if (e.target.id === 'sojourn-move-btn') {
+                this.showSojournMoveDialog();
+            } else if (e.target.id === 'repair-move-btn') {
+                this.showRepairMoveDialog();
             } else if (e.target.id === 'endure-harm-btn') {
                 this.showEndureHarmDialog();
             } else if (e.target.id === 'endure-stress-btn') {
@@ -53,10 +59,22 @@ class RecoverySystem {
                 this.executeHealMove();
             } else if (e.target.id === 'cancel-heal-move') {
                 this.hideHealMoveDialog();
+            } else if (e.target.id === 'execute-hearten-move') {
+                this.executeHeartenMove();
+            } else if (e.target.id === 'cancel-hearten-move') {
+                this.hideHeartenMoveDialog();
             } else if (e.target.id === 'execute-resupply-move') {
                 this.executeResupplyMove();
             } else if (e.target.id === 'cancel-resupply-move') {
                 this.hideResupplyMoveDialog();
+            } else if (e.target.id === 'execute-sojourn-move') {
+                this.executeSojournMove();
+            } else if (e.target.id === 'cancel-sojourn-move') {
+                this.hideSojournMoveDialog();
+            } else if (e.target.id === 'execute-repair-move') {
+                this.executeRepairMove();
+            } else if (e.target.id === 'cancel-repair-move') {
+                this.hideRepairMoveDialog();
             } else if (e.target.id === 'execute-endure-harm-move') {
                 this.executeEndureHarmMove();
             } else if (e.target.id === 'cancel-endure-harm-move') {
@@ -268,6 +286,75 @@ class RecoverySystem {
         }
     }
 
+    // Hearten move dialog and execution
+    showHeartenMoveDialog() {
+        const dialog = document.getElementById('hearten-move-dialog');
+        if (dialog) {
+            dialog.style.display = 'block';
+        }
+    }
+
+    hideHeartenMoveDialog() {
+        const dialog = document.getElementById('hearten-move-dialog');
+        if (dialog) {
+            dialog.style.display = 'none';
+        }
+    }
+
+    executeHeartenMove() {
+        const heartenType = document.querySelector('input[name="hearten-type"]:checked')?.value;
+        if (!heartenType) {
+            alert('Please select a hearten option');
+            return;
+        }
+
+        let moveText = '';
+        let rollStat = 'heart'; // Default stat for most hearten options
+
+        switch (heartenType) {
+            case 'socialize':
+                moveText = 'Socializing or seeking entertainment';
+                rollStat = 'heart';
+                break;
+            case 'quiet-meditation':
+                moveText = 'Finding solace in quiet contemplation';
+                rollStat = 'spirit';
+                break;
+            case 'creative':
+                moveText = 'Creating something or indulging in a pastime';
+                rollStat = 'wits';
+                break;
+        }
+
+        // Execute the move
+        const result = moves.executeMove('Hearten', rollStat, 0, moveText);
+        
+        // Process results based on outcome
+        this.processHeartenMoveResult(result, heartenType);
+        
+        // Log to scene
+        sceneLog.addEntry('move', `**Hearten:** ${moveText}`, result);
+        
+        this.hideHeartenMoveDialog();
+    }
+
+    processHeartenMoveResult(result, heartenType) {
+        if (result.outcome === 'strong_hit') {
+            // Strong hit: +2 spirit
+            this.changeSpirit(2);
+            sceneLog.addEntry('outcome', 'Strong hit on Hearten: +2 spirit');
+            
+        } else if (result.outcome === 'weak_hit') {
+            // Weak hit: +1 spirit
+            this.changeSpirit(1);
+            sceneLog.addEntry('outcome', 'Weak hit on Hearten: +1 spirit');
+            
+        } else if (result.outcome === 'miss') {
+            // Miss: no recovery, possible complication
+            sceneLog.addEntry('outcome', 'Miss on Hearten: No recovery. You are dejected or your efforts backfire.');
+        }
+    }
+
     // Resupply move dialog and execution
     showResupplyMoveDialog() {
         const dialog = document.getElementById('resupply-move-dialog');
@@ -334,6 +421,146 @@ class RecoverySystem {
         } else if (result.outcome === 'miss') {
             // Miss: no supplies gained, you face hardship
             sceneLog.addEntry('outcome', 'Miss on Resupply: No supplies gained. You face hardship or create an obligation');
+        }
+    }
+
+    // Sojourn move dialog and execution
+    showSojournMoveDialog() {
+        const dialog = document.getElementById('sojourn-move-dialog');
+        if (dialog) {
+            dialog.style.display = 'block';
+        }
+    }
+
+    hideSojournMoveDialog() {
+        const dialog = document.getElementById('sojourn-move-dialog');
+        if (dialog) {
+            dialog.style.display = 'none';
+        }
+    }
+
+    executeSojournMove() {
+        const sojournType = document.querySelector('input[name="sojourn-type"]:checked')?.value;
+        if (!sojournType) {
+            alert('Please select a sojourn option');
+            return;
+        }
+
+        let moveText = '';
+        let rollStat = 'heart'; // Default for most sojourn options
+
+        switch (sojournType) {
+            case 'community':
+                moveText = 'Finding aid and comfort in a community';
+                rollStat = 'heart';
+                break;
+            case 'hospitality':
+                moveText = 'Seeking hospitality or refuge';
+                rollStat = 'heart';
+                break;
+            case 'provisions':
+                moveText = 'Seeking provisions and assistance';
+                rollStat = 'supply';
+                break;
+        }
+
+        // Execute the move
+        const result = moves.executeMove('Sojourn', rollStat, 0, moveText);
+        
+        // Process results
+        this.processSojournMoveResult(result, sojournType);
+        
+        // Log to scene
+        sceneLog.addEntry('move', `**Sojourn:** ${moveText}`, result);
+        
+        this.hideSojournMoveDialog();
+    }
+
+    processSojournMoveResult(result, sojournType) {
+        if (result.outcome === 'strong_hit') {
+            // Strong hit: multiple benefits
+            this.changeHealth(1);
+            this.changeSpirit(1);
+            this.changeSupply(1);
+            character.addMomentum(1);
+            sceneLog.addEntry('outcome', 'Strong hit on Sojourn: +1 health, +1 spirit, +1 supply, +1 momentum');
+            
+        } else if (result.outcome === 'weak_hit') {
+            // Weak hit: choose two benefits
+            this.changeHealth(1);
+            this.changeSpirit(1);
+            sceneLog.addEntry('outcome', 'Weak hit on Sojourn: Choose two: +1 health, +1 spirit, +1 supply, or +1 momentum. (+1 health and +1 spirit selected)');
+            
+        } else if (result.outcome === 'miss') {
+            // Miss: you are refused or face a complication
+            sceneLog.addEntry('outcome', 'Miss on Sojourn: You are refused, cast out, or face some other complication');
+        }
+    }
+
+    // Repair move dialog and execution
+    showRepairMoveDialog() {
+        const dialog = document.getElementById('repair-move-dialog');
+        if (dialog) {
+            dialog.style.display = 'block';
+        }
+    }
+
+    hideRepairMoveDialog() {
+        const dialog = document.getElementById('repair-move-dialog');
+        if (dialog) {
+            dialog.style.display = 'none';
+        }
+    }
+
+    executeRepairMove() {
+        const repairType = document.querySelector('input[name="repair-type"]:checked')?.value;
+        if (!repairType) {
+            alert('Please select a repair option');
+            return;
+        }
+
+        let moveText = '';
+        let rollStat = 'wits';
+
+        switch (repairType) {
+            case 'make-repairs':
+                moveText = 'Making repairs with available materials';
+                rollStat = 'wits';
+                break;
+            case 'jury-rig':
+                moveText = 'Jury-rigging a temporary solution';
+                rollStat = 'wits';
+                break;
+            case 'field-maintenance':
+                moveText = 'Performing field maintenance';
+                rollStat = 'wits';
+                break;
+        }
+
+        // Execute the move
+        const result = moves.executeMove('Repair', rollStat, 0, moveText);
+        
+        // Process results
+        this.processRepairMoveResult(result, repairType);
+        
+        // Log to scene
+        sceneLog.addEntry('move', `**Repair:** ${moveText}`, result);
+        
+        this.hideRepairMoveDialog();
+    }
+
+    processRepairMoveResult(result, repairType) {
+        if (result.outcome === 'strong_hit') {
+            // Strong hit: repair successful
+            sceneLog.addEntry('outcome', 'Strong hit on Repair: Your vehicle, equipment, or device is fully repaired');
+            
+        } else if (result.outcome === 'weak_hit') {
+            // Weak hit: partial repair or cost
+            sceneLog.addEntry('outcome', 'Weak hit on Repair: You achieve a temporary or limited repair, or fix the problem but at a cost');
+            
+        } else if (result.outcome === 'miss') {
+            // Miss: you fail or make things worse
+            sceneLog.addEntry('outcome', 'Miss on Repair: You fail, or your repairs create a new problem');
         }
     }
 

@@ -96,6 +96,7 @@ class StarforgedApp {
         // Dialog events
         document.getElementById('oracle-form').addEventListener('submit', (e) => this.handleOracleSubmit(e));
         document.getElementById('cancel-oracle').addEventListener('click', () => this.hideOracleDialog());
+        document.getElementById('oracle-category').addEventListener('change', () => this.populateOraclesInCategory());
         document.getElementById('narrative-form').addEventListener('submit', (e) => this.handleNarrativeSubmit(e));
         document.getElementById('cancel-narrative').addEventListener('click', () => this.hideNarrativeDialog());
         document.getElementById('new-scene-form').addEventListener('submit', (e) => this.handleNewSceneSubmit(e));
@@ -569,12 +570,88 @@ class StarforgedApp {
     }
 
     showOracleDialog() {
-        // Simple oracle dialog - in a full implementation this would be more sophisticated
-        const question = prompt('Ask the oracle a yes/no question:');
-        if (question) {
-            const oracle = gameData.getOracle('Starforged/Oracles/Moves/Ask_the_Oracle/Fifty_fifty');
-            const result = gameData.rollOnOracle(oracle);
-            alert(`Oracle says: ${result.result} (rolled ${result.roll})`);
+        const dialog = document.getElementById('oracle-dialog');
+        if (dialog) {
+            // Populate oracle categories if not already done
+            this.populateOracleCategories();
+            dialog.style.display = 'block';
+        }
+    }
+
+    hideOracleDialog() {
+        const dialog = document.getElementById('oracle-dialog');
+        if (dialog) {
+            dialog.style.display = 'none';
+        }
+    }
+
+    populateOracleCategories() {
+        const categorySelect = document.getElementById('oracle-category');
+        if (!categorySelect || categorySelect.children.length > 1) return;
+
+        const categories = gameData.getOracleCategories();
+        if (categories) {
+            for (const [categoryPath, category] of Object.entries(categories)) {
+                const option = document.createElement('option');
+                option.value = categoryPath;
+                option.textContent = category.Name || categoryPath.split('/').pop();
+                categorySelect.appendChild(option);
+            }
+        }
+    }
+
+    handleOracleSubmit(e) {
+        e.preventDefault();
+        
+        const categoryPath = document.getElementById('oracle-category').value;
+        const oracleName = document.getElementById('oracle-name').value;
+        const question = document.getElementById('oracle-question').value;
+        
+        if (!categoryPath || !oracleName) {
+            alert('Please select a category and oracle.');
+            return;
+        }
+
+        const oraclePath = `${categoryPath}/${oracleName}`;
+        const oracle = gameData.getOracle(oraclePath);
+        
+        if (!oracle) {
+            alert('Oracle not found. Please check your selection.');
+            return;
+        }
+
+        const result = gameData.rollOnOracle(oracle);
+        
+        // Log the oracle result
+        sceneLog.logOracle(oracle, result, question || 'Oracle consultation');
+        
+        // Update recent entries
+        this.updateRecentLogEntries();
+        
+        this.hideOracleDialog();
+    }
+
+    populateOraclesInCategory() {
+        const categoryPath = document.getElementById('oracle-category').value;
+        const oracleSelect = document.getElementById('oracle-name');
+        
+        // Clear existing options
+        oracleSelect.innerHTML = '<option value="">Choose an oracle...</option>';
+        
+        if (!categoryPath) return;
+
+        const categories = gameData.getOracleCategories();
+        const category = categories[categoryPath];
+        
+        if (category && category.Contents) {
+            for (const content of category.Contents) {
+                if (content.Name) {
+                    const option = document.createElement('option');
+                    option.value = content.Name;
+                    option.textContent = content.Name;
+                    oracleSelect.appendChild(option);
+                }
+            }
         }
     }
 
@@ -599,6 +676,7 @@ class StarforgedApp {
         this.displayCharacterMeters();
         this.displayCharacterAssets();
         this.displayCharacterVows();
+        this.displayLegacyAndExperience();
     }
 
     displayCharacterStats() {
@@ -692,6 +770,60 @@ class StarforgedApp {
         
         character.addVow({ description, rank: rank.toLowerCase() });
         this.displayCharacterVows();
+    }
+
+    displayLegacyAndExperience() {
+        // Update experience display
+        const experienceElement = document.getElementById('current-experience');
+        if (experienceElement) {
+            experienceElement.textContent = character.experience || 0;
+        }
+
+        // Update legacy tracks
+        const tracks = ['quests', 'bonds', 'discoveries'];
+        tracks.forEach(trackName => {
+            const element = document.getElementById(`${trackName}-track`);
+            if (element) {
+                const track = character.legacyTracks[trackName];
+                if (track) {
+                    const boxes = Math.floor(track.ticks / 4);
+                    const remainingTicks = track.ticks % 4;
+                    element.innerHTML = this.createLegacyTrackDisplay(boxes, remainingTicks, track.completed);
+                }
+            }
+        });
+    }
+
+    createLegacyTrackDisplay(boxes, ticks, completed) {
+        let html = '<div class="legacy-boxes">';
+        
+        // Show filled boxes (max 10)
+        for (let i = 0; i < Math.min(boxes, 10); i++) {
+            html += `<div class="meter-box filled ${completed ? 'completed' : ''}"></div>`;
+        }
+        
+        // Show current box with ticks if any
+        if (boxes < 10 && ticks > 0) {
+            html += `<div class="meter-box partial" title="${ticks}/4 ticks">`;
+            for (let i = 0; i < 4; i++) {
+                html += `<div class="tick ${i < ticks ? 'filled' : ''}"></div>`;
+            }
+            html += '</div>';
+        }
+        
+        // Show empty boxes
+        const emptyBoxes = Math.max(0, 10 - boxes - (ticks > 0 ? 1 : 0));
+        for (let i = 0; i < emptyBoxes; i++) {
+            html += '<div class="meter-box empty"></div>';
+        }
+        
+        html += '</div>';
+        
+        if (completed) {
+            html += '<div class="legacy-status">Completed - Future progress earns 1 XP per box</div>';
+        }
+        
+        return html;
     }
 
     // Utility methods
@@ -1182,63 +1314,6 @@ class StarforgedApp {
     hideOracleDialog() {
         const dialog = document.getElementById('oracle-dialog');
         dialog.style.display = 'none';
-    }
-
-    handleOracleSubmit(e) {
-        e.preventDefault();
-        const question = document.getElementById('oracle-question').value.trim();
-        const type = document.getElementById('oracle-type').value;
-        
-        if (type) {
-            const result = this.rollOracle(type);
-            sceneLog.logOracle({ Name: `Oracle (${type})`, $id: `oracle_${type}` }, result, question);
-            
-            this.displayOracleResult(result, question, type);
-            this.updateRecentLogEntries();
-        }
-    }
-
-    rollOracle(type) {
-        const roll = Math.floor(Math.random() * 100) + 1;
-        let result;
-        
-        switch (type) {
-            case 'yes-no':
-                result = roll <= 50 ? 'Yes' : 'No';
-                break;
-            case 'likely':
-                result = roll <= 75 ? 'Yes' : 'No';
-                break;
-            case 'unlikely':
-                result = roll <= 25 ? 'Yes' : 'No';
-                break;
-            case 'small-chance':
-                result = roll <= 10 ? 'Yes' : 'No';
-                break;
-            case 'sure-thing':
-                result = roll <= 90 ? 'Yes' : 'No';
-                break;
-            default:
-                result = roll <= 50 ? 'Yes' : 'No';
-        }
-
-        return { roll, result };
-    }
-
-    displayOracleResult(result, question, type) {
-        const resultDiv = document.getElementById('oracle-result');
-        const outcomeClass = result.result.toLowerCase() === 'yes' ? 'success' : 'failure';
-        
-        resultDiv.innerHTML = `
-            <div class="oracle-roll-result ${outcomeClass}">
-                <div class="oracle-question">${question || 'Oracle Roll'}</div>
-                <div class="oracle-outcome">
-                    <span class="roll-value">Rolled: ${result.roll}</span>
-                    <span class="result-text">${result.result}</span>
-                </div>
-            </div>
-        `;
-        resultDiv.style.display = 'block';
     }
 
     exportSceneLog() {

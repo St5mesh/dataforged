@@ -378,6 +378,88 @@ class Character {
         }
         return false;
     }
+
+    // Asset management and advancement
+    spendExperience(cost, description) {
+        if (this.experience < cost) return false;
+        
+        this.experience -= cost;
+        this.saveToStorage();
+        
+        sceneLog.addEntry('advance', `Spent ${cost} experience: ${description}`);
+        return true;
+    }
+
+    advanceAsset(assetId, isNew = false) {
+        const cost = isNew ? 3 : 2;
+        const action = isNew ? 'acquired' : 'upgraded';
+        
+        if (!this.spendExperience(cost, `${action} asset`)) {
+            return false;
+        }
+        
+        // Asset management would be handled by the asset system
+        // For now, just log the advancement
+        sceneLog.addEntry('advance', `Asset ${action} for ${cost} experience`);
+        return true;
+    }
+
+    // Experience earning from legacy tracks
+    earnExperience(amount, source) {
+        this.experience += amount;
+        this.saveToStorage();
+        
+        sceneLog.addEntry('experience', `Earned ${amount} experience from ${source}`);
+    }
+
+    // Get current experience status
+    getExperienceStatus() {
+        return {
+            current: this.experience,
+            legacyTracks: this.legacyTracks
+        };
+    }
+
+    // Continue a Legacy move implementation
+    continueALegacy(formerCharacterData) {
+        const newCharacter = {
+            inheritedAssets: [],
+            inheritedConnections: [],
+            inheritedVehicles: []
+        };
+
+        // Roll for each legacy track
+        const legacyRolls = {};
+        for (const [trackName, track] of Object.entries(formerCharacterData.legacyTracks)) {
+            const boxes = Math.floor(track.ticks / 4) + (track.completed ? 10 : 0);
+            const challengeDice = [Math.floor(Math.random() * 10) + 1, Math.floor(Math.random() * 10) + 1];
+            const progressScore = Math.min(boxes, 10);
+            
+            let outcome;
+            if (progressScore > challengeDice[0] && progressScore > challengeDice[1]) {
+                outcome = 'strong_hit';
+            } else if (progressScore > challengeDice[0] || progressScore > challengeDice[1]) {
+                outcome = 'weak_hit';  
+            } else {
+                outcome = 'miss';
+            }
+
+            legacyRolls[trackName] = {
+                progressScore,
+                challengeDice,
+                outcome,
+                boxes
+            };
+
+            // Log the legacy roll
+            sceneLog.addEntry('legacy', `Continue a Legacy (${trackName}): Progress ${progressScore} vs ${challengeDice.join(', ')} - ${outcome.replace('_', ' ')}`, legacyRolls[trackName]);
+        }
+
+        return {
+            legacyRolls,
+            newCharacter
+        };
+    }
 }
 
 // Create global instance

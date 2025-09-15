@@ -160,6 +160,10 @@ class StarforgedApp {
         if (typeof combatSubflow !== 'undefined') {
             combatSubflow.init();
         }
+        if (typeof connectionsSubflow !== 'undefined') {
+            connectionsSubflow.init();
+            connectionsSubflow.loadConnections();
+        }
     }
 
     // Session 0 Setup

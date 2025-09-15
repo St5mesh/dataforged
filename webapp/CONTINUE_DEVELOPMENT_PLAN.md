@@ -20,8 +20,9 @@ The webapp now offers a robust solo Ironsworn: Starforged play experience, groun
 - **Subflows**
   - **Vows:** Complete management system (create, update, fulfill, forsake, track progress)
   - **Expeditions:** Complete journey management system (track, update, end)
+  - **Connections:** Complete relationship management system (Make/Develop/Forge a Bond) ✨ **NEWLY COMPLETED**
   - **Combat:** Foundation in place ("Enter the Fray" and basic structure)
-  - **Progress Tracks:** Comprehensive system supporting Vows, Expeditions, and (partially) Combat
+  - **Progress Tracks:** Comprehensive system supporting Vows, Expeditions, Combat, and Connections
 
 ### Foundation Achieved
 
@@ -31,15 +32,44 @@ The webapp now offers a robust solo Ironsworn: Starforged play experience, groun
 
 ---
 
+## Recently Completed: Connections Subflow ✨
+
+**Implementation Date:** September 15, 2025
+
+The Connections subflow has been fully implemented with all core relationship mechanics from Starforged:
+
+### Features Completed:
+- **Make a Connection Move:** Create relationships with NPCs using Heart rolls
+- **Develop Your Relationship Move:** Progress connections through meaningful interactions
+- **Forge a Bond Move:** Complete relationships with legacy rewards and bond benefits
+- **Progress Tracking:** Full 10-box progress system with tick management
+- **Bond Benefits:** Choose between Bolster (+2 aid) or Expand (dual roles) influence
+- **UI Integration:** Complete interface in Character screen with connection cards
+- **Scene Log Integration:** All moves fully logged with detailed outcomes
+- **Data Persistence:** All connections saved to character storage
+
+### Technical Implementation:
+- Complete connections.js subflow (985+ lines)
+- Updated index.html with Connections UI section
+- Enhanced styles.css with connection-specific styling
+- Integrated with app.js initialization system
+- Full modal dialog system for all three connection moves
+- Comprehensive error handling and validation
+
+---
+
 ## Next Steps & Remaining Tasks
 
-### B. Subflow Integration (Connections, Recovery)
-- **Connections:** Implement full subflow (creation, progress, benefits, and logging)
-- **Recovery:** Add support for healing/harm, stress management, and related moves
+### B. Recovery System ⭐ **NEXT PRIORITY**
+- Implement healing/harm mechanics and moves
+- Add stress management and spirit recovery
+- Supply management and resupply mechanics
+- Health condition tracking and effects
 
-### C. Legacy / Advancement System
-- Implement XP/legacy point tracking and advancement spends
+### C. Legacy / Advancement System  
+- Implement XP/legacy point spending interface
 - UI/logic for milestone and reward events
+- Experience point management for asset advancement
 
 ### E. Move Runner Enhancement
 - Expand move runner to support all advanced and narrative moves (beyond current core set)

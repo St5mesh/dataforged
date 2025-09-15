@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ironsworn: Starforged Webapp</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="app">
+        <header>
+            <h1>Ironsworn: Starforged</h1>
+            <nav>
+                <button id="nav-session0" class="nav-btn active">Session 0</button>
+                <button id="nav-play" class="nav-btn" disabled>Play</button>
+                <button id="nav-character" class="nav-btn" disabled>Character</button>
+            </nav>
+        </header>
+
+        <main id="main-content">
+            <!-- Session 0 Screen -->
+            <section id="session0-screen" class="screen active">
+                <h2>Character Creation - Session 0</h2>
+                
+                <div class="creation-step" id="step-truths">
+                    <h3>Setting Truths</h3>
+                    <p>Select or roll for truths that define your galaxy:</p>
+                    <div id="truths-container"></div>
+                    <button id="randomize-truths" class="btn">Randomize All Truths</button>
+                </div>
+
+                <div class="creation-step" id="step-paths">
+                    <h3>Choose Your Paths (2 Required)</h3>
+                    <p>Select two path assets that define your character's background and abilities:</p>
+                    <div id="paths-container"></div>
+                </div>
+
+                <div class="creation-step" id="step-vehicle">
+                    <h3>Command Vehicle</h3>
+                    <p>Your starship is your home among the stars:</p>
+                    <div id="vehicle-container"></div>
+                </div>
+
+                <div class="creation-step" id="step-assets">
+                    <h3>Third Asset</h3>
+                    <p>Choose one additional asset:</p>
+                    <div id="assets-container"></div>
+                </div>
+
+                <div class="creation-step" id="step-stats">
+                    <h3>Assign Stats</h3>
+                    <p>Distribute these values: 3, 2, 2, 1, 1</p>
+                    <div id="stats-container">
+                        <div class="stat">
+                            <label>Edge (Speed, agility):</label>
+                            <select id="stat-edge">
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                            </select>
+                        </div>
+                        <div class="stat">
+                            <label>Heart (Resolve, command):</label>
+                            <select id="stat-heart">
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                            </select>
+                        </div>
+                        <div class="stat">
+                            <label>Iron (Strength, aggression):</label>
+                            <select id="stat-iron">
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                            </select>
+                        </div>
+                        <div class="stat">
+                            <label>Shadow (Stealth, deception):</label>
+                            <select id="stat-shadow">
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                            </select>
+                        </div>
+                        <div class="stat">
+                            <label>Wits (Focus, expertise):</label>
+                            <select id="stat-wits">
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="creation-step" id="step-vow">
+                    <h3>Background Vow</h3>
+                    <p>Create an Epic vow that drives your character's story:</p>
+                    <textarea id="background-vow" placeholder="Describe your character's epic background vow..."></textarea>
+                    <div class="progress-track">
+                        <label>Epic Vow Progress:</label>
+                        <div class="progress-boxes" id="vow-progress">
+                            <!-- Progress boxes will be generated by JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <button id="complete-session0" class="btn btn-primary" disabled>Complete Session 0</button>
+            </section>
+
+            <!-- Play Screen -->
+            <section id="play-screen" class="screen">
+                <h2>Play</h2>
+                <div class="play-interface">
+                    <div class="scene-frame">
+                        <h3>Current Scene</h3>
+                        <textarea id="scene-description" placeholder="Describe the current scene..."></textarea>
+                        <button id="frame-scene" class="btn">Frame New Scene</button>
+                    </div>
+
+                    <div class="move-selection">
+                        <h3>Select Move</h3>
+                        <select id="move-category">
+                            <option value="">Choose a move category...</option>
+                        </select>
+                        <select id="move-list" disabled>
+                            <option value="">Choose a move...</option>
+                        </select>
+                        <button id="execute-move" class="btn" disabled>Execute Move</button>
+                    </div>
+
+                    <div class="always-available">
+                        <button id="ask-oracle" class="btn">Ask the Oracle</button>
+                        <button id="pay-price" class="btn">Pay the Price</button>
+                    </div>
+
+                    <div id="move-interface"></div>
+                    <div id="roll-results"></div>
+                </div>
+            </section>
+
+            <!-- Character Screen -->
+            <section id="character-screen" class="screen">
+                <h2>Character Sheet</h2>
+                <div class="character-sheet">
+                    <div class="character-stats">
+                        <h3>Stats</h3>
+                        <div id="character-stats-display"></div>
+                    </div>
+
+                    <div class="character-meters">
+                        <h3>Condition Meters</h3>
+                        <div class="meter">
+                            <label>Health:</label>
+                            <div id="health-meter" class="meter-track"></div>
+                        </div>
+                        <div class="meter">
+                            <label>Spirit:</label>
+                            <div id="spirit-meter" class="meter-track"></div>
+                        </div>
+                        <div class="meter">
+                            <label>Supply:</label>
+                            <div id="supply-meter" class="meter-track"></div>
+                        </div>
+                        <div class="meter">
+                            <label>Momentum:</label>
+                            <span id="momentum-value">+2</span>
+                            <span class="momentum-range">(Max: 10, Reset: +2)</span>
+                        </div>
+                    </div>
+
+                    <div class="character-assets">
+                        <h3>Assets</h3>
+                        <div id="character-assets-display"></div>
+                    </div>
+
+                    <div class="character-vows">
+                        <h3>Vows</h3>
+                        <div id="character-vows-display"></div>
+                        <button id="add-vow" class="btn">Swear New Vow</button>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="game-data.js"></script>
+    <script src="dice.js"></script>
+    <script src="character.js"></script>
+    <script src="moves.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

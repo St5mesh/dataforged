@@ -152,6 +152,9 @@ class StarforgedApp {
         if (typeof expeditionsSubflow !== 'undefined') {
             expeditionsSubflow.init();
         }
+        if (typeof combatSubflow !== 'undefined') {
+            combatSubflow.init();
+        }
     }
 
     // Session 0 Setup

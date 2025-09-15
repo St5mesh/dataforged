@@ -2017,3 +2017,95 @@ select {
 .condition-notification {
     background: var(--danger-color) !important;
 }
+
+/* Legacy and Experience Styles */
+.character-legacy {
+    margin-top: 25px;
+    padding: 20px;
+    background: rgba(60, 112, 164, 0.1);
+    border-radius: 8px;
+    border: 1px solid var(--primary-color);
+}
+
+.experience-section {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.experience-display {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1.1em;
+    font-weight: bold;
+}
+
+.experience-display span {
+    background: var(--accent-color);
+    color: white;
+    padding: 4px 12px;
+    border-radius: 4px;
+}
+
+.legacy-tracks {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.legacy-track {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.legacy-track label {
+    min-width: 100px;
+    font-weight: 500;
+}
+
+.legacy-boxes {
+    display: flex;
+    gap: 2px;
+    align-items: center;
+}
+
+.meter-box.completed {
+    border-color: var(--success-color);
+    background: linear-gradient(135deg, var(--success-color), #45a049);
+}
+
+.meter-box.partial {
+    display: flex;
+    padding: 2px;
+    gap: 1px;
+}
+
+.tick {
+    width: 3px;
+    height: 12px;
+    background: var(--border-color);
+    border-radius: 1px;
+}
+
+.tick.filled {
+    background: var(--secondary-color);
+}
+
+.legacy-status {
+    font-size: 0.9em;
+    color: var(--success-color);
+    font-style: italic;
+    margin-top: 5px;
+}
+
+.advancement-buttons {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.advancement-buttons .btn {
+    min-width: 150px;
+}

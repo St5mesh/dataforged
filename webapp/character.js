@@ -419,6 +419,47 @@ class Character {
             legacyTracks: this.legacyTracks
         };
     }
+
+    // Continue a Legacy move implementation
+    continueALegacy(formerCharacterData) {
+        const newCharacter = {
+            inheritedAssets: [],
+            inheritedConnections: [],
+            inheritedVehicles: []
+        };
+
+        // Roll for each legacy track
+        const legacyRolls = {};
+        for (const [trackName, track] of Object.entries(formerCharacterData.legacyTracks)) {
+            const boxes = Math.floor(track.ticks / 4) + (track.completed ? 10 : 0);
+            const challengeDice = [Math.floor(Math.random() * 10) + 1, Math.floor(Math.random() * 10) + 1];
+            const progressScore = Math.min(boxes, 10);
+            
+            let outcome;
+            if (progressScore > challengeDice[0] && progressScore > challengeDice[1]) {
+                outcome = 'strong_hit';
+            } else if (progressScore > challengeDice[0] || progressScore > challengeDice[1]) {
+                outcome = 'weak_hit';  
+            } else {
+                outcome = 'miss';
+            }
+
+            legacyRolls[trackName] = {
+                progressScore,
+                challengeDice,
+                outcome,
+                boxes
+            };
+
+            // Log the legacy roll
+            sceneLog.addEntry('legacy', `Continue a Legacy (${trackName}): Progress ${progressScore} vs ${challengeDice.join(', ')} - ${outcome.replace('_', ' ')}`, legacyRolls[trackName]);
+        }
+
+        return {
+            legacyRolls,
+            newCharacter
+        };
+    }
 }
 
 // Create global instance

@@ -676,6 +676,7 @@ class StarforgedApp {
         this.displayCharacterMeters();
         this.displayCharacterAssets();
         this.displayCharacterVows();
+        this.displayLegacyAndExperience();
     }
 
     displayCharacterStats() {
@@ -769,6 +770,60 @@ class StarforgedApp {
         
         character.addVow({ description, rank: rank.toLowerCase() });
         this.displayCharacterVows();
+    }
+
+    displayLegacyAndExperience() {
+        // Update experience display
+        const experienceElement = document.getElementById('current-experience');
+        if (experienceElement) {
+            experienceElement.textContent = character.experience || 0;
+        }
+
+        // Update legacy tracks
+        const tracks = ['quests', 'bonds', 'discoveries'];
+        tracks.forEach(trackName => {
+            const element = document.getElementById(`${trackName}-track`);
+            if (element) {
+                const track = character.legacyTracks[trackName];
+                if (track) {
+                    const boxes = Math.floor(track.ticks / 4);
+                    const remainingTicks = track.ticks % 4;
+                    element.innerHTML = this.createLegacyTrackDisplay(boxes, remainingTicks, track.completed);
+                }
+            }
+        });
+    }
+
+    createLegacyTrackDisplay(boxes, ticks, completed) {
+        let html = '<div class="legacy-boxes">';
+        
+        // Show filled boxes (max 10)
+        for (let i = 0; i < Math.min(boxes, 10); i++) {
+            html += `<div class="meter-box filled ${completed ? 'completed' : ''}"></div>`;
+        }
+        
+        // Show current box with ticks if any
+        if (boxes < 10 && ticks > 0) {
+            html += `<div class="meter-box partial" title="${ticks}/4 ticks">`;
+            for (let i = 0; i < 4; i++) {
+                html += `<div class="tick ${i < ticks ? 'filled' : ''}"></div>`;
+            }
+            html += '</div>';
+        }
+        
+        // Show empty boxes
+        const emptyBoxes = Math.max(0, 10 - boxes - (ticks > 0 ? 1 : 0));
+        for (let i = 0; i < emptyBoxes; i++) {
+            html += '<div class="meter-box empty"></div>';
+        }
+        
+        html += '</div>';
+        
+        if (completed) {
+            html += '<div class="legacy-status">Completed - Future progress earns 1 XP per box</div>';
+        }
+        
+        return html;
     }
 
     // Utility methods

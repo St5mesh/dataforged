@@ -195,6 +195,8 @@
                                 <button id="heal-move-btn" class="btn recovery-btn">Heal</button>
                                 <button id="hearten-move-btn" class="btn recovery-btn">Hearten</button>
                                 <button id="resupply-move-btn" class="btn recovery-btn">Resupply</button>
+                                <button id="sojourn-move-btn" class="btn recovery-btn">Sojourn</button>
+                                <button id="repair-move-btn" class="btn recovery-btn">Repair</button>
                                 <button id="endure-harm-btn" class="btn recovery-btn">Endure Harm</button>
                                 <button id="endure-stress-btn" class="btn recovery-btn">Endure Stress</button>
                             </div>
@@ -355,19 +357,21 @@
             <h3>Ask the Oracle</h3>
             <form id="oracle-form">
                 <div class="form-group">
-                    <label for="oracle-question">Your Question:</label>
+                    <label for="oracle-question">Your Question (optional):</label>
                     <input type="text" id="oracle-question" placeholder="What do you want to know?">
                 </div>
                 
                 <div class="form-group">
-                    <label for="oracle-type">Oracle Type:</label>
-                    <select id="oracle-type" required>
-                        <option value="">Select oracle type...</option>
-                        <option value="yes-no">Yes/No Question</option>
-                        <option value="likely">Likely (75% Yes)</option>
-                        <option value="unlikely">Unlikely (25% Yes)</option>
-                        <option value="small-chance">Small Chance (10% Yes)</option>
-                        <option value="sure-thing">Sure Thing (90% Yes)</option>
+                    <label for="oracle-category">Oracle Category:</label>
+                    <select id="oracle-category" required>
+                        <option value="">Select category...</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="oracle-name">Oracle:</label>
+                    <select id="oracle-name" required>
+                        <option value="">Choose an oracle...</option>
                     </select>
                 </div>
 
@@ -513,6 +517,64 @@
                 <div class="modal-buttons">
                     <button type="button" id="cancel-resupply-move" class="btn">Cancel</button>
                     <button type="button" id="execute-resupply-move" class="btn btn-primary">Execute Move</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Sojourn Move Dialog -->
+    <div id="sojourn-move-dialog" class="modal" style="display: none;">
+        <div class="modal-content">
+            <h3>Sojourn Move</h3>
+            <form id="sojourn-move-form">
+                <div class="move-option">
+                    <input type="radio" id="community" name="sojourn-type" value="community">
+                    <label for="community">Find aid and comfort in a community (+heart)</label>
+                    <p class="option-description">Rest and recover in a welcoming settlement or among allies.</p>
+                </div>
+                <div class="move-option">
+                    <input type="radio" id="hospitality" name="sojourn-type" value="hospitality">
+                    <label for="hospitality">Seek hospitality or refuge (+heart)</label>
+                    <p class="option-description">Appeal for shelter and assistance from others.</p>
+                </div>
+                <div class="move-option">
+                    <input type="radio" id="provisions" name="sojourn-type" value="provisions">
+                    <label for="provisions">Seek provisions and assistance (+supply)</label>
+                    <p class="option-description">Focus on gathering supplies and resources.</p>
+                </div>
+                
+                <div class="modal-buttons">
+                    <button type="button" id="cancel-sojourn-move" class="btn">Cancel</button>
+                    <button type="button" id="execute-sojourn-move" class="btn btn-primary">Execute Move</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Repair Move Dialog -->
+    <div id="repair-move-dialog" class="modal" style="display: none;">
+        <div class="modal-content">
+            <h3>Repair Move</h3>
+            <form id="repair-move-form">
+                <div class="move-option">
+                    <input type="radio" id="make-repairs" name="repair-type" value="make-repairs">
+                    <label for="make-repairs">Make repairs with available materials (+wits)</label>
+                    <p class="option-description">Fix damage using your skills and available parts.</p>
+                </div>
+                <div class="move-option">
+                    <input type="radio" id="jury-rig" name="repair-type" value="jury-rig">
+                    <label for="jury-rig">Jury-rig a temporary solution (+wits)</label>
+                    <p class="option-description">Create a makeshift fix to get things working.</p>
+                </div>
+                <div class="move-option">
+                    <input type="radio" id="field-maintenance" name="repair-type" value="field-maintenance">
+                    <label for="field-maintenance">Perform field maintenance (+wits)</label>
+                    <p class="option-description">Use maintenance protocols and basic servicing.</p>
+                </div>
+                
+                <div class="modal-buttons">
+                    <button type="button" id="cancel-repair-move" class="btn">Cancel</button>
+                    <button type="button" id="execute-repair-move" class="btn btn-primary">Execute Move</button>
                 </div>
             </form>
         </div>

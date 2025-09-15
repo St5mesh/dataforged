@@ -180,14 +180,93 @@
                         <div id="character-vows-display"></div>
                         <button id="add-vow" class="btn">Swear New Vow</button>
                     </div>
+
+                    <div class="progress-tracks-section">
+                        <h3>Progress Tracks</h3>
+                        <div class="progress-tracks-controls">
+                            <button id="add-progress-track" class="btn">Add Progress Track</button>
+                            <select id="track-type-filter">
+                                <option value="">All Track Types</option>
+                                <option value="vow">Vows</option>
+                                <option value="expedition">Expeditions</option>
+                                <option value="combat">Combat</option>
+                                <option value="connection">Connections</option>
+                                <option value="legacy">Legacy</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        <div id="progress-tracks-list"></div>
+                    </div>
                 </div>
             </section>
         </main>
     </div>
 
+    <!-- Progress Track Dialog -->
+    <div id="progress-track-dialog" class="dialog-overlay" style="display: none;">
+        <div class="dialog">
+            <h3 id="progress-track-dialog-title">Add Progress Track</h3>
+            <form id="progress-track-form">
+                <div class="form-group">
+                    <label for="track-label">Track Name:</label>
+                    <input type="text" id="track-label" required placeholder="Enter track name...">
+                </div>
+                
+                <div class="form-group">
+                    <label for="track-type">Track Type:</label>
+                    <select id="track-type" required>
+                        <option value="">Select type...</option>
+                        <option value="vow">Vow</option>
+                        <option value="expedition">Expedition</option>
+                        <option value="combat">Combat</option>
+                        <option value="connection">Connection</option>
+                        <option value="legacy">Legacy</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="track-rank">Challenge Rank:</label>
+                    <select id="track-rank" required>
+                        <option value="">Select rank...</option>
+                        <option value="troublesome">Troublesome (12 ticks per progress)</option>
+                        <option value="dangerous">Dangerous (8 ticks per progress)</option>
+                        <option value="formidable">Formidable (4 ticks per progress)</option>
+                        <option value="extreme">Extreme (2 ticks per progress)</option>
+                        <option value="epic">Epic (1 tick per progress)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="track-description">Description (optional):</label>
+                    <textarea id="track-description" placeholder="Describe this track..."></textarea>
+                </div>
+
+                <div class="dialog-buttons">
+                    <button type="button" id="cancel-track" class="btn">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Create Track</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Progress Roll Dialog -->
+    <div id="progress-roll-dialog" class="dialog-overlay" style="display: none;">
+        <div class="dialog">
+            <h3>Progress Roll</h3>
+            <div id="progress-roll-content">
+                <!-- Content populated by JavaScript -->
+            </div>
+            <div class="dialog-buttons">
+                <button type="button" id="close-progress-roll" class="btn">Close</button>
+            </div>
+        </div>
+    </div>
+
     <script src="game-data.js"></script>
     <script src="dice.js"></script>
     <script src="character.js"></script>
+    <script src="progress-tracks.js"></script>
     <script src="moves.js"></script>
     <script src="app.js"></script>
 </body>

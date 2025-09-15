@@ -62,6 +62,15 @@ class StarforgedApp {
 
         // Character screen events
         document.getElementById('add-vow').addEventListener('click', () => this.showAddVowDialog());
+        
+        // Progress tracks events
+        document.getElementById('add-progress-track').addEventListener('click', () => this.showAddProgressTrackDialog());
+        document.getElementById('track-type-filter').addEventListener('change', (e) => this.filterProgressTracks(e.target.value));
+        
+        // Progress track dialog events
+        document.getElementById('cancel-track').addEventListener('click', () => this.hideAddProgressTrackDialog());
+        document.getElementById('progress-track-form').addEventListener('submit', (e) => this.handleProgressTrackSubmit(e));
+        document.getElementById('close-progress-roll').addEventListener('click', () => this.hideProgressRollDialog());
     }
 
     initializeUI() {
@@ -89,6 +98,7 @@ class StarforgedApp {
             this.initializePlayScreen();
         } else if (screenName === 'character') {
             this.updateCharacterDisplay();
+            this.renderProgressTracks();
         }
     }
 
@@ -402,14 +412,14 @@ class StarforgedApp {
 
     showMoveInterface(moveId) {
         const move = gameData.getMove(moveId);
-        const interface = document.getElementById('move-interface');
+        const moveInterface = document.getElementById('move-interface');
         
-        interface.innerHTML = `
+        moveInterface.innerHTML = `
             <h3>${move.Name}</h3>
             <p>${movesSystem.getFormattedMoveText(move)}</p>
             ${this.createMoveInputs(move)}
         `;
-        interface.classList.add('active');
+        moveInterface.classList.add('active');
     }
 
     createMoveInputs(move) {
@@ -608,6 +618,212 @@ class StarforgedApp {
     truncateText(text, length) {
         if (text.length <= length) return text;
         return text.substring(0, length) + '...';
+    }
+
+    // Progress Tracks Methods
+    renderProgressTracks() {
+        const container = document.getElementById('progress-tracks-list');
+        if (!container) return;
+
+        const filterType = document.getElementById('track-type-filter')?.value || '';
+        const tracks = filterType ? 
+            progressTrackManager.getTracksByType(filterType) : 
+            progressTrackManager.getActiveTracks();
+
+        if (tracks.length === 0) {
+            container.innerHTML = '<p class="text-secondary">No progress tracks found.</p>';
+            return;
+        }
+
+        container.innerHTML = tracks.map(track => this.renderProgressTrack(track)).join('');
+    }
+
+    renderProgressTrack(track) {
+        const boxes = this.renderProgressBoxes(track);
+        const progressInfo = this.getProgressInfo(track);
+        
+        return `
+            <div class="progress-track-display" data-track-id="${track.id}">
+                <div class="progress-track-header">
+                    <div class="progress-track-info">
+                        <h4>
+                            ${track.label}
+                            <span class="track-type-badge ${track.type}">${track.type}</span>
+                        </h4>
+                        <div class="progress-track-meta">
+                            ${this.capitalizeFirst(track.rank)} • ${progressInfo}
+                        </div>
+                        ${track.description ? `<p style="margin-top: 8px; color: var(--text-secondary); font-size: 0.9em;">${track.description}</p>` : ''}
+                    </div>
+                    <div class="progress-track-actions">
+                        <button class="btn" onclick="app.markProgressTrackProgress('${track.id}')">Mark Progress</button>
+                        <button class="btn" onclick="app.eraseProgressTrackProgress('${track.id}')">Erase Progress</button>
+                        <button class="btn" onclick="app.makeProgressRoll('${track.id}')">Progress Roll</button>
+                        <button class="btn" onclick="app.editProgressTrack('${track.id}')">Edit</button>
+                        <button class="btn" onclick="app.deleteProgressTrack('${track.id}')">Delete</button>
+                    </div>
+                </div>
+                <div class="progress-visual">
+                    ${boxes}
+                </div>
+            </div>
+        `;
+    }
+
+    renderProgressBoxes(track) {
+        const boxes = [];
+        const totalBoxes = 10;
+        const filledBoxes = track.progressBoxes;
+        const remainingTicks = track.remainingTicks;
+
+        for (let i = 0; i < totalBoxes; i++) {
+            let boxClass = 'progress-box';
+            let content = '';
+
+            if (i < filledBoxes) {
+                boxClass += ' filled';
+                content = '●';
+            } else if (i === filledBoxes && remainingTicks > 0) {
+                boxClass += ' partial';
+                content = remainingTicks;
+            }
+
+            boxes.push(`<div class="${boxClass}">${content}</div>`);
+        }
+
+        return `
+            <div class="progress-boxes">
+                ${boxes.join('')}
+            </div>
+            <div class="progress-info">
+                <span>Progress: ${filledBoxes}/10 boxes</span>
+                <span>Ticks: ${track.ticks}/40</span>
+                <span>Progress Score: ${track.getProgressScore()}</span>
+            </div>
+        `;
+    }
+
+    getProgressInfo(track) {
+        const filledBoxes = track.progressBoxes;
+        const totalTicks = track.ticks;
+        return `${filledBoxes}/10 boxes (${totalTicks} ticks)`;
+    }
+
+    showAddProgressTrackDialog() {
+        const dialog = document.getElementById('progress-track-dialog');
+        const form = document.getElementById('progress-track-form');
+        
+        // Reset form
+        form.reset();
+        
+        // Show dialog
+        dialog.style.display = 'flex';
+    }
+
+    hideAddProgressTrackDialog() {
+        const dialog = document.getElementById('progress-track-dialog');
+        dialog.style.display = 'none';
+    }
+
+    handleProgressTrackSubmit(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(e.target);
+        const trackData = {
+            label: document.getElementById('track-label').value,
+            type: document.getElementById('track-type').value,
+            rank: document.getElementById('track-rank').value,
+            description: document.getElementById('track-description').value
+        };
+
+        progressTrackManager.addTrack(trackData);
+        this.hideAddProgressTrackDialog();
+        this.renderProgressTracks();
+        
+        console.log('Progress track created:', trackData);
+    }
+
+    filterProgressTracks(type) {
+        this.renderProgressTracks();
+    }
+
+    markProgressTrackProgress(trackId) {
+        progressTrackManager.markProgress(trackId);
+        this.renderProgressTracks();
+        console.log('Progress marked for track:', trackId);
+    }
+
+    eraseProgressTrackProgress(trackId) {
+        const track = progressTrackManager.getTrack(trackId);
+        if (track) {
+            track.eraseProgress();
+            progressTrackManager.saveToStorage();
+            this.renderProgressTracks();
+            console.log('Progress erased for track:', trackId);
+        }
+    }
+
+    makeProgressRoll(trackId) {
+        const result = progressTrackManager.makeProgressRoll(trackId);
+        if (result) {
+            this.showProgressRollDialog(result);
+        }
+    }
+
+    showProgressRollDialog(rollResult) {
+        const dialog = document.getElementById('progress-roll-dialog');
+        const content = document.getElementById('progress-roll-content');
+        
+        const { track, roll, progressScore } = rollResult;
+        
+        content.innerHTML = `
+            <div class="progress-roll-result">
+                <h4>${track.label}</h4>
+                <p>Progress Score: ${progressScore}</p>
+                
+                <div class="progress-roll-dice">
+                    <div class="die d10">${roll.challengeDice[0]}</div>
+                    <div class="die d10">${roll.challengeDice[1]}</div>
+                </div>
+                
+                <div class="progress-roll-outcome ${roll.outcome}">
+                    ${this.capitalizeFirst(roll.outcome.replace('-', ' '))}
+                </div>
+                
+                <p><strong>Result:</strong> ${this.getProgressRollDescription(roll.outcome, track)}</p>
+            </div>
+        `;
+        
+        dialog.style.display = 'flex';
+    }
+
+    hideProgressRollDialog() {
+        const dialog = document.getElementById('progress-roll-dialog');
+        dialog.style.display = 'none';
+    }
+
+    getProgressRollDescription(outcome, track) {
+        const descriptions = {
+            'strong-hit': 'You achieve what you set out to do. Mark appropriate legacy reward if applicable.',
+            'weak-hit': 'You achieve what you set out to do, but face a troublesome cost or complication.',
+            'miss': 'You fail, and face a dramatic cost. Clear all progress, or abandon this track.'
+        };
+        
+        return descriptions[outcome] || 'Consult the move for guidance.';
+    }
+
+    editProgressTrack(trackId) {
+        // TODO: Implement edit functionality
+        console.log('Edit track:', trackId);
+        alert('Edit functionality coming soon!');
+    }
+
+    deleteProgressTrack(trackId) {
+        if (confirm('Are you sure you want to delete this progress track?')) {
+            progressTrackManager.deleteTrack(trackId);
+            this.renderProgressTracks();
+            console.log('Track deleted:', trackId);
+        }
     }
 
     capitalizeFirst(str) {

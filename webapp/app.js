@@ -168,6 +168,9 @@ class StarforgedApp {
         if (typeof recoverySystem !== 'undefined') {
             recoverySystem.init();
         }
+        if (typeof advancementSystem !== 'undefined') {
+            advancementSystem.init();
+        }
     }
 
     // Session 0 Setup
@@ -674,6 +677,7 @@ class StarforgedApp {
     updateCharacterDisplay() {
         this.displayCharacterStats();
         this.displayCharacterMeters();
+        this.displayCharacterConditions();
         this.displayCharacterAssets();
         this.displayCharacterVows();
         this.displayLegacyAndExperience();
@@ -723,6 +727,37 @@ class StarforgedApp {
         if (momentumValue) {
             momentumValue.textContent = character.momentum >= 0 ? `+${character.momentum}` : character.momentum;
         }
+    }
+
+    displayCharacterConditions() {
+        const container = document.getElementById('character-conditions');
+        if (!container) return;
+
+        const conditions = Object.entries(character.conditions).filter(([_, isActive]) => isActive);
+        
+        if (conditions.length === 0) {
+            container.innerHTML = '<p class="no-conditions">No active conditions</p>';
+            return;
+        }
+
+        container.innerHTML = conditions.map(([condition, _]) => {
+            const isPermanent = ['maimed', 'corrupted'].includes(condition);
+            return `<div class="condition-item ${isPermanent ? 'permanent' : 'temporary'}">
+                <span class="condition-name">${this.capitalizeFirst(condition)}</span>
+                <span class="condition-effect">-1 to action rolls</span>
+                ${isPermanent ? '<span class="permanent-tag">(Permanent)</span>' : ''}
+                ${!isPermanent ? `<button class="btn-small clear-condition" data-condition="${condition}">Clear</button>` : ''}
+            </div>`;
+        }).join('');
+
+        // Add event listeners for clear buttons
+        container.querySelectorAll('.clear-condition').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const condition = e.target.dataset.condition;
+                character.setCondition(condition, false);
+                this.updateCharacterDisplay();
+            });
+        });
     }
 
     displayCharacterAssets() {

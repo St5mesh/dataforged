@@ -24,6 +24,9 @@ class StarforgedApp {
         // Initialize UI
         this.initializeUI();
 
+        // Initialize subflows
+        this.initializeSubflows();
+
         // Check if character is already created
         if (character.sessionComplete) {
             this.switchScreen('play');
@@ -138,6 +141,13 @@ class StarforgedApp {
             playBtn.disabled = true;
             characterBtn.disabled = true;
             logBtn.disabled = true;
+        }
+    }
+
+    // Initialize subflows
+    initializeSubflows() {
+        if (typeof vowsSubflow !== 'undefined') {
+            vowsSubflow.init();
         }
     }
 
@@ -626,22 +636,28 @@ class StarforgedApp {
     }
 
     displayCharacterVows() {
-        const container = document.getElementById('character-vows-display');
-        if (!container) return;
+        // Use the vows subflow for rendering
+        if (typeof vowsSubflow !== 'undefined') {
+            vowsSubflow.renderVowsList();
+        } else {
+            // Fallback to simple display
+            const container = document.getElementById('character-vows-display');
+            if (!container) return;
 
-        container.innerHTML = character.vows.map(vow => 
-            `<div class="vow-display">
-                <h5>${vow.description}</h5>
-                <div class="vow-progress">
-                    <small>Rank: ${vow.rank}</small>
-                    <div class="progress-track">
-                        ${Array(10).fill().map((_, i) => 
-                            `<div class="progress-box ${i < vow.progress ? 'filled' : ''}"></div>`
-                        ).join('')}
+            container.innerHTML = character.vows.map(vow => 
+                `<div class="vow-display">
+                    <h5>${vow.description}</h5>
+                    <div class="vow-progress">
+                        <small>Rank: ${vow.rank}</small>
+                        <div class="progress-track">
+                            ${Array(10).fill().map((_, i) => 
+                                `<div class="progress-box ${i < vow.progress ? 'filled' : ''}"></div>`
+                            ).join('')}
+                        </div>
                     </div>
-                </div>
-            </div>`
-        ).join('') || '<p>No vows</p>';
+                </div>`
+            ).join('') || '<p>No vows</p>';
+        }
     }
 
     showAddVowDialog() {

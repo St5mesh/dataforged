@@ -51,24 +51,32 @@ class MovesSystem {
     }
 
     // Execute a progress move
-    executeProgressMove(move, options) {
-        const { vowId, connectionId, otherProgressScore } = options;
-        
-        let progressScore = 0;
-        
-        if (vowId) {
-            progressScore = character.getVowProgressScore(vowId);
-        } else if (otherProgressScore !== undefined) {
-            progressScore = otherProgressScore;
+    executeProgressMove(moveId, options) {
+        const move = gameData.getMove(moveId);
+        if (!move) {
+            console.error('Move not found:', moveId);
+            return null;
         }
 
-        const roll = diceRoller.progressRoll(progressScore);
+        const { vowId, connectionId, progressScore, narrative } = options;
+        
+        let finalProgressScore = progressScore;
+        
+        if (vowId) {
+            finalProgressScore = character.getVowProgressScore(vowId);
+        } else if (connectionId) {
+            // TODO: Implement connection progress score
+            finalProgressScore = 0;
+        }
+
+        const roll = diceRoller.progressRoll(finalProgressScore);
 
         const result = {
             move,
             roll,
-            progressScore,
-            timestamp: Date.now()
+            progressScore: finalProgressScore,
+            timestamp: Date.now(),
+            narrative
         };
 
         this.moveHistory.push(result);

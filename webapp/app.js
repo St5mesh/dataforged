@@ -171,6 +171,12 @@ class StarforgedApp {
         if (typeof advancementSystem !== 'undefined') {
             advancementSystem.init();
         }
+        if (typeof oracleSystem !== 'undefined') {
+            oracleSystem.init();
+        }
+        if (typeof enhancedMoveRunner !== 'undefined') {
+            enhancedMoveRunner.init();
+        }
     }
 
     // Session 0 Setup
